@@ -1,0 +1,209 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <errno.h>
+
+//读有名管道
+void readfifo()
+{
+	int len = 0;
+	char buf[1024];
+	memset(buf, 0, sizeof(buf));
+	int fd = open("/home/zhangqi/helloworld/fifo1", O_RDONLY);
+	if (fd == -1)
+	{
+		printf("file open error!%s\n",strerror(errno));
+		return;
+	}
+	while ((len = read(fd, buf, sizeof(buf))) > 0)
+	{
+		printf("%s\n", buf);
+		memset(buf, 0, sizeof(buf));
+	}
+	close(fd);
+}
+
+//守护进程
+void setdaemon()
+{
+	pid_t pid = fork();
+	if (pid == -1)
+	{
+		printf("fork error!\n");
+		exit(0);
+	}
+	if (pid == 0)
+	{
+		//断掉与终端的联系
+		setsid();
+		/*
+		//设置根目录
+		chdir("/");
+		//设置文件权限
+		umask(0);
+		//关闭标准输入输出
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+		*/
+	}
+	if (pid > 0)
+		exit(0);
+}
+
+int main(int arg, char* args[])
+{
+	setdaemon();
+	readfifo();
+	return 0;
+}
+
+二.写fifo
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <errno.h>
+
+//写有名管道
+void writefifo()
+{
+	char buf[1024];
+	memset(buf, 0, sizeof(buf));
+	int fd = open("/home/zhangqi/helloworld/fifo1", O_WRONLY);
+	if (fd == -1)
+	{
+		printf("file open error!%s\n", strerror(errno));
+		return;
+	}
+	while (1)
+	{	
+		memset(buf, 0 ,sizeof(buf));
+		scanf("%s", buf);
+		write(fd, buf, sizeof(buf));
+	}
+	close(fd);
+}
+
+
+int main(int arg, char* args[])
+{
+	writefifo();
+	return 0;
+}
+
+
+
+三.后台运行的deamon程序向屏幕打印消息
+步奏：
+1.执行mkfifo fifo1，创建管道
+2.执行程序，关闭当前控制台终端窗口，让程序在后台运行
+3.打开一个新的终端窗口，通过ps aux找到进程PID
+4.执行：
+kill -s 2 PID
+tty > fifo1
+
+四.所以改进后的整体程序：
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <errno.h>
+
+//信号回调函数
+int signal1(int signo, void(*func)(int))
+{
+	//定义两个sigaction 结构指针
+	struct sigaction act, oact;
+	//指向了回调函数
+	act.sa_handler = func;
+	//用这个函数把该值清空
+	sigemptyset(&act.sa_mask);
+	//初始化这个结构
+	act.sa_flags = 0;
+	//返回之前的状态
+	return sigaction(signo, &act, &oact);
+}
+
+//守护进程
+void setdaemon()
+{
+	pid_t pid,sid;
+	pid = fork();
+	if (pid == -1)
+	{
+		printf("fork error!%s\n",strerror(errno) );
+		exit(EXIT_FAILURE);
+	}
+	if ((sid = setsid()) < 0)
+	{
+		printf("fork error!%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	if (pid > 0)
+		exit(EXIT_SUCCESS);
+}
+
+//监听管道
+void listenfifo()
+{
+	const char* sfifoname = "fifo1";
+	int len = 0;
+	char buf[1024];
+	memset(buf, 0, sizeof(buf));
+	int fd = open(sfifoname, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("file open error!%s\n", strerror(errno));
+		return;
+	}
+	len = read(fd, buf, sizeof(buf));
+	if (len > 0)
+	{
+		if (buf[strlen(buf) - 1] == '\n')
+			buf[strlen(buf) - 1] = 0;
+		close(STDOUT_FILENO);
+		open(buf, O_WRONLY);
+	}
+	close(fd);
+}
+
+//捕捉信号
+void catch_Signal(int sign)
+{
+	switch (sign)
+	{
+	case SIGINT:
+		listenfifo();
+		break;
+	}
+}
+
+int main(int arg, char* args[])
+{
+	//把进程设为daemon状态
+	setdaemon();
+	//捕捉SIGINT信号
+	signal1(SIGINT, catch_Signal);
+	while (1)
+	{
+		puts("hello world!");
+		sleep(1);
+	}
+	return 0;
+}

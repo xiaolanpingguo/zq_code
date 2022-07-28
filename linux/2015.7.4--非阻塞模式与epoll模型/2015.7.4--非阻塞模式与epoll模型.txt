@@ -1,0 +1,74 @@
+一.非阻塞工作模式
+--在该模式下，accept函数，如果没有客户端socket连入，会返回-1，同时errno的值为EAGAIN或EWOULDBLOCK,这两个宏定义都是整数11
+--调用recv，recvfrom函数,如果没有数据，函数返回-1，同时errno为11，如果socke已经关闭，函数返回0
+--如果该模式对一个已经关闭的Socket调用send函数，将引发一个SIGPIPE信号，进程必须捕捉这个信号，因为该信号系统默认的处理方式为关闭进程
+
+int fcntl(int fd,int cmd,..)
+fd：要设置的文件描述符或socket
+cmd：F_GETFL得到目前的状态，F_SETFL为设置状态
+宏定义0_NONBLOCK代表非阻塞，0代表阻塞
+返回值为描述符当前状态
+
+例如：
+int opts = fcntl(st,F_GETFL)
+
+if(opts < 0)
+	printf("fcntl failed%s",strerror(errno));
+
+opts= opts | 0_NONBLOCK;
+
+if(fcntl(st,F_SETFL,opts) < 0)
+ 	printf("fcntl faild,strerror(errno))
+
+二.epoll模型
+
+1.
+--int epoll_creat(int size)
+创建一个epoll文件描述符
+size:指定epoll所支持的最大句柄数
+函数会返回一个新的epoll句柄，之后所有的操作都将通过这个句柄进行操作，用完句柄过后，需要close关闭这个句柄
+
+2.
+--int epoll_ctl(int epfd,int op,int fd,struct epoll_event *event)
+epfd:epoll_creat的返回值
+op表示动作，用三个宏表示：
+--EPOLL_CTL_ADD:注册新的fd到epfd中
+--EPOLL_CTL_MOD:修改已经注册的fd的监听事件
+--EPOLL_CTL_DEL:从epfd中删除一个fd
+fd:需要监听的socket描述符
+event:通知内核需要监听什么事件
+
+事件类型：
+--EPOLLIN:可读（包括对端的SCOKET正常关闭）
+--EPOLLOUT：可写
+--EPOLLPRI:有紧急数据可读（表示有带外数据到来）
+--EPOLLERR:发生错误
+--EPOLLHUP:被挂断
+--EPOLLET:设为边缘触发（Edge Triggered)模式，这是相对于水平触发(Level Triggered）来说的
+--EPOLLONESHOT:只监听一次事件，当监听完这次事件之后，如果还需要监听这个Socket的话，需要再次把这个socket加入到epoll队列去
+
+注意：epoll有两种工作方式：
+--LT(level triggered)是缺省的工作方式，并且同时支持阻塞和非阻塞
+--在该模式下，内核通知一个文件描述符是否就绪了，然后可以对这个就绪的fd进行IO操作，如果你不做任何操作，内核还是会继续通知你，所有这种模式编程出错可能性要小一点
+
+--ET(edge-trigered)是高速工作方式，只支持非阻塞
+--在该模式下，当描述符从未就绪变为就绪时，内核通过epoll高速你
+--该模式会假设你知道文件描述符已经就绪，并且不会再为那个文件描述符发送更多的就绪通知，知道你做了某些操作导致那个文件描述符不再为就绪状态了
+--如果一直不对这个fd做io操作（从而导致它再次变为未就绪），内核不会发送更多的通知
+
+--两者的区别
+--LT事件不会丢弃，而是主要读buffer里面有数据可以让用户读，则不断的通知你
+--ET只在事件发送时通知，可以简单理解为LT是水平触发，ET为边缘触发
+--LT模式只要有事件未处理就会触发，而ET则在高低电平变换时（即状态从1到0或者0到1）触发
+3.
+--int epoll_wait(int epfd,struct epoll_event *event,int maxevents,int timeout)
+epfd:epoll_creat的返回值
+maxevents:当前需要监听的所有socket句柄数
+time_out：函数的超时处理，为0的时候马上返回，为-1的时候一直等下去，直到有事件范围，正整数表示等多长时间
+返回值是发生事件的socket的数量
+
+注意：一般如果网络主循环是单独的线程的话，可以用-1来等，这样可以保证一些效率，如果是和主逻辑在同一个线程的话，可以用0来保证主循环的效率。而且epoll_wait范围之后应该是一个循环，遍历所有的事件
+
+接受发生在被侦听的描述符上，用户感兴趣的事件
+
+注意：epoll文件描述用完过后，需要close关闭，每次修改/添加/删除文件描述符都需要调用epoll_ctl,所以尽量少地调用epoll_ctl

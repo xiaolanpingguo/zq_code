@@ -1,0 +1,13 @@
+﻿cl : Command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  test.cpp
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(29): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(90): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(91): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(92): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(93): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(94): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(95): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(96): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\test.cpp(97): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+test.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  test.vcxproj -> D:\资料备份\学习资料\计算机图形学\2015.7.01-插值\矩阵插值\Debug\test.exe

@@ -1,0 +1,10 @@
+一.update更新语句
+--update tablename set cal1=val1,cal2=val2,..where conditional,其中set字句指定要修改的字段的所赋的值，where字句指定要修改的行，如果没有where字句，代表修改所有行
+
+例如：
+uodate table1 set sex = ‘男' where name = ’小张';就把小张变为男性了
+
+
+二.delete语句
+delete from table1 where name = '小张';
+就把小张删除了

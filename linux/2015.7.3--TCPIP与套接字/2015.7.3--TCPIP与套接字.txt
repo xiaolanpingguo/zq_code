@@ -1,0 +1,36 @@
+一.分配通信接口
+--服务器端需包含的头文件
+#include <sys/types.h>
+#include <sys/socket.h>
+--客户端需包含的头文件
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int socket(int domain,int type,int protocol)
+成功返回套接字描述符，失败返回-1，并设置errno
+
+int bind(int sockfd,const struct sockaddr* my_addr,socklen_t addrlen)
+--将进程和一个套接字联系起来，通常用于服务器进程为接入客户端连接建立一个套接字
+成功返回0，失败返回-1，并设置errno
+
+int listen(int sockfd,int backlog)
+backlog:设置接入队列的大小，一般设置为足够大就行了
+--成功返回0，失败返回-1，并设置errno
+
+int accept(int sockfd,const struct sockaddr* addr,socklen_t *addrlen)
+--函数会返回一个新的套接字，同事原来的套接字继续listen
+
+int connect(int sockfd,const struct sockaddr* serv_addr,socklen_t addrlen)
+--连接服务器
+
+ssize_t send(int s,const void* buf,size_t len,int flags)
+--成功返回0，失败返回-1，并设置errno
+
+int setsockopt(int s,int level,int optname,const void* optval,socklen_t optlen)
+--设置套接口
+--常见用法是：
+int on = 1;
+setsockopt(st,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on))
+--由于TCP套接字状态TIME_WAIT引起套接字关闭后约保留2到4分钟，在此期间bind绑定该端口会失败
+--SO_REUSEADDR指示系统地址可重用

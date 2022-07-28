@@ -1,0 +1,58 @@
+一.创建线程
+--在进程中只有一个控制线程
+--程序开始运行时，每个进程只有一个线程，它是以单线程方式启动的，在创建多个线程以前，进程与线程没有区别
+--gcc在链接的时候需要增加-lpthread选项,意思是加上那个多线程的SO库，例如：
+gcc -o hello -hello.o -lpthread
+
+#include <pthread.h>
+int pthread_create(pthread_t* thread, 
+const pthread_attr_t* attr,
+void* (*start_routine)(void*),
+void* arg);
+
+thread ：线程ID号的指针
+attr：线程建立的时候有什么属性
+void* (*start_routine)(void*)：填写的回调函数
+arg：对应线程的void* 那个参数
+
+成功返回0，thread 将设置为那个线程的ID号，失败返回非0
+
+注意：一般情况下，我们是attr填为Null,但是如果要指定该线程的相关属性，可以使用pthread_attr_t结构修改线程默认属性，要修改线程默认属性，可以使用pthread_attr_init函数初始化该结构，调用了该函数后，结构里面的内容就是操作系统实现支持线程所有属性的默认值，如果要修改其中个别属性的值，需要调用其他函数。因此可以通过pthread_attr_t 在创建线程的时候就指定线程属性为detach，而不用创建以后再去修改线程属性
+
+二.线程终止
+1.
+--任一线程调用exit函数，整个进程都会终止
+--如果信号默认动作是终止进程，那么信号发送到该线程，整个进程也会被终止
+
+2.单个线程退出：
+--从启动函数中返回，返回值是线程的退出码
+--可以被同一进程的其他线程取消
+--线程调用pthread_exit
+
+void pthread_exit(void* arg)
+arg:该指针会被其他线程调用pthread_jion捕捉
+
+三.挂起线程
+int pthread_join(pthread_t th,void** thr_return)
+--用于挂起当前线程，直至th指定的线程终止为止
+--如果另个线程返回值不是null，则保存在thr_return
+--一个线程所使用的内存资源在应用pthread_join调用之前，不会被重新分配，所以对于每个线程必须调用一次pthread_join函数
+--其他线程不能对同一线程再应用pthread_join调用
+
+通俗讲就是等待一个线程退出
+
+四.分离线程
+int pthread_detach(pthread_t th)
+--对于被分离状态的线程，不需要调用pthread_join，如果其他线程调用pthread_join失败，返回EINVAL
+--如果不等待一个线程，同时对线程的返回值不感兴趣，可以设置这个线程为被分离状态，让系统在线程退出时自动回收它的资源
+--一个线程不能自己调用pthread_detach改变自己为被分离状态，只能由其他线程调用pthread_detach
+
+五.线程取消
+int pthread_cancel(pthread_t th)
+--该函数允许一个线程取消th指定的另一个线程
+--成功返回0，否则返回非0
+
+六.线程比较
+int pthread_equal(pthread_t th1,pthread_t th2)
+--该函数比较th1和th2是否为同一个线程
+--如果相同返回非0，如果不同返回0

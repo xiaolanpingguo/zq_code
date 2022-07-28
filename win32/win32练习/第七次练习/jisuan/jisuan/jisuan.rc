@@ -1,0 +1,113 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOGEX 0, 0, 299, 205
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "简单计算器"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,242,23,50,22
+    PUSHBUTTON      "取消",IDCANCEL,242,66,50,22
+    EDITTEXT        IDC_EDIT1,6,6,199,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "8",IDC_BUTTON1,68,42,33,31
+    PUSHBUTTON      "7",IDC_BUTTON2,17,42,33,31
+    PUSHBUTTON      "9",IDC_BUTTON3,118,41,33,31
+    PUSHBUTTON      "+",IDC_BUTTON4,173,42,33,31
+    PUSHBUTTON      "4",IDC_BUTTON5,18,81,33,31
+    PUSHBUTTON      "5",IDC_BUTTON6,69,81,33,31
+    PUSHBUTTON      "6",IDC_BUTTON7,119,82,33,31
+    PUSHBUTTON      "-",IDC_BUTTON8,173,81,33,31
+    PUSHBUTTON      "/",IDC_BUTTON9,172,167,33,31
+    PUSHBUTTON      "0",IDC_BUTTON10,19,167,33,31
+    PUSHBUTTON      "清空",IDC_BUTTON11,73,172,67,26
+    PUSHBUTTON      "*",IDC_BUTTON12,173,119,33,31
+    PUSHBUTTON      "1",IDC_BUTTON13,19,121,33,31
+    PUSHBUTTON      "3",IDC_BUTTON14,119,120,33,31
+    PUSHBUTTON      "2",IDC_BUTTON15,69,121,33,31
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 292
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 198
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 中文(中华人民共和国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

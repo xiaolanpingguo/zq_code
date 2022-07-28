@@ -1,0 +1,110 @@
+makefile文件的编写：
+
+一：
+1：最简单的makefile:
+start:
+	g++ -o hello hello.cpp
+
+
+2.改进1：
+start: hello.o
+	g++ -o hello hello.o
+hello.o:
+	g++ -o hello.o -c hello.cpp
+
+上面为执行start的条件要依赖hello.o
+
+
+3.改进2：
+start: hello.o
+	g++ -o hello hello.o
+	@echo '-----ok--------
+hello.o:
+	g++ -o hello.o -c hello.cpp
+clean:
+	rm -f hello.o
+
+4.改进3--使用变量
+
+CC=g++      //使用了CC当作g++
+start: hello.o
+	$(CC) -o hello hello.o
+	@echo '-----ok--------
+hello.o:
+	$(CC)  -o hello.o -c hello.cpp
+clean:
+	rm -f hello.o
+
+
+
+5.改进4--使用变量
+
+CC=g++      //使用了CC当作g++
+SRCS=hello.cpp
+OBJS=hello.o
+EXEC=hello
+start: hello.o
+	$(CC) -o $(EXEC) $(OBJS)
+	@echo '-----ok--------
+hello.o:
+	$(CC)  -o $(OBJS) -c $(SRCS)
+clean:
+	rm -f hello.o
+
+
+
+6.改进5--没有最方便，只有更方便
+
+CC=g++      //使用了CC当作g++
+SRCS=hello.cpp
+OBJS=$(SRCS:.cpp=.o)
+EXEC=hello
+start: $(OBJS)
+	$(CC) -o $(EXEC) $(OBJS)
+	@echo '-----ok--------
+$(OBJS):
+	$(CC)  -o $(OBJS) -c $(SRCS)
+clean:
+	rm -f hello.o
+
+二：
+1.模式规则
+.SUFFIXES:.c .o
+表示任何x.c文件与x.o关联
+
+.c.o:
+表示make定义了一条规则，任何x.o文件都从x.c编译而来
+
+make 还定义了一些有用的预定义变量
+$@ :表示规则的目标所对应的文件名
+$< :表示规则中的第一个相关文件名
+
+2.继续改进6：
+.SUFFIXES:.c.o //.c和.o文件关联
+
+CC=g++      //使用了CC当作g++
+SRCS=hello.cpp
+OBJS=$(SRCS:.cpp=.o)
+EXE=hello
+
+start: $(OBJS) //如果没有找到.o文件就会去.c.o标号下面去，因为它们是有关联的
+	$(CC) -o $(EXE) $(OBJS)
+	@echo '-----ok--------
+.c.o:
+	$(CC) -Wall -g -o $@ -c $<
+clean:
+	rm -f $(OBJS)
+	rm -f core*
+
+注意：.c和.o关联完以后，$@就代表那个规则的目标所对应的文件名，即.o文件
+	$<就代表那个规则中的第一个文件名，即.c文件
+
+
+三：
+常见的make出错信息
+“No rule to make target 'target'.stop
+--通俗讲就是make ??的时候，在makefile文件，没有这个规则
+‘target' is up to data
+--指定的target相关文件没有变化
+command:Command not found
+--在makefile文件中找不到相关命令（例如没有安装g++命令

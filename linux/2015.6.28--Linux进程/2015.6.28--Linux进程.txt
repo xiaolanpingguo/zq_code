@@ -1,0 +1,92 @@
+一.得到进程号和父进程号
+getpid()
+getppd()
+
+二.得到用户名和用户名对应的系统uid，头文件为：
+#include <sys/types.h>
+#include <pwd.h>
+
+程序如下：
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
+int main(int arg,char* args[])
+{
+	char* login = getlogin();
+	struct passwd* ps = getpwnam(login);
+	printf("user name = %s\n", ps->pw_name);
+	printf("uid = %d\n", ps->pw_uid);
+	printf("home dir = %s", ps->pw_dir);
+	return 0;
+}
+
+三.利用函数来执行命令
+int system(const char* string)
+例如：system("ls");,相当于执行ls,
+如果没有找到/bin/sh，返回127，如果出现其他错误返回-1，成功返回0，如果string为null，返回一个非零值
+
+四.fork系统调用
+#include<unistd.h>
+pid_t fork();
+--执行失败（可能系统进程数已满），返回-1，执行成功，向父进程返回子进程的pid，并向子进程返回0，也就是说0代表子进程，
+--非零代表父进程，这意味着fork即使只调用一次，也会返回两次，所以执行程序的时候，给人的感觉是执行了两次
+--fork创建的新进程是和父进程（出了PID和PPID）一样的副本
+--父进程和子进程之间有点区别，子进程没有进程继承父进程的超时设置（使用alarm调用），父进程创建的文件锁，或者未决信号
+
+例子如下：
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
+int main(int arg,char* args[])
+{
+	printf("begin\n");
+	pid_t child = fork();
+	if (child == -1)
+		return -1;
+	if (child == 0)
+		printf("is child\n");
+	else
+		printf("is parent\n");
+	printf("end\n");
+	return 0;
+}
+
+五.execve函数
+int execve(const char* path,const char* arg,char*const envp[])
+path:要执行的文件完整路径
+argv:传递给程序完整参数列表，包括argv[0],它一般是执行程序的名字
+envp:指向执行execed程序的环境指针，可以设为null
+--fork创建了一个新的进程，产生一个新的pid
+--execve用被执行的程序完全替换了调用进程的映像
+--execve启动一个新程序，替换原有进程，所以被执行进程的PID不会改变
+例如：
+int main()
+{
+	char* args[] = {"/bin/ls","-l",NULL};
+	execve("/bin/ls",args,NULL);
+	printf("end\n");
+}
+这样新建的这一个进程/bin/ls就取代了原进程，但系统给它分配的资源没变，变的只是代码，所以就不会有打印了
+
+六.wait和waitpid
+--函数可以收集子进程的退出状态
+#include <sys/wait.h>
+#include <sys/types.h>
+pid_t wait(int *status)
+该函数父进程会等待子进程返回，父进程才会执行，要得到子进程的返回值，可用WEXITSTATUS(status)获得该返回值
+
+pid_t waitpid(pid_t pid,int *status,int options)
+--status保存子进程的退出状态
+--pid为等待进程的pid，它能接受下表的4种值中的一个
+-1：等待任何PGID等于PID的绝对值子进程
+1：等待任何子进程
+0：等待任何PGID等于调用进程的子进程
+>0：等待PID等于pid的子进程
+
+--该函数相比于上个函数的优势在于，在多个子进程的存在中，可以等待指定pid的子进程

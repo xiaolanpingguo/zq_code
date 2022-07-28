@@ -1,0 +1,9 @@
+一.配置环境
+	1.先去下载pyhton,这里我下载的3.5版本，下载地址
+	https://www.python.org/downloads/release/python-351/
+	2.下载完成后，没什么说的，一路next，最后记得勾选添加环境变量，如果
+		不勾选的话也可以，自己再手动添加就行了
+		
+二.
+	进入CMD，输入python,键入:print("hello world");
+	此时就可以看到输出了hello world

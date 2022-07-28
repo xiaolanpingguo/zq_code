@@ -1,0 +1,17 @@
+﻿生成启动时间为 2015/7/2 14:01:03。
+     1>项目“C:\Users\zhangqi\Desktop\2\2\2.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         E:\VS2013\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt 2Dlg.cpp
+         2Dlg.cpp
+     1>c:\users\zhangqi\desktop\2\2\2dlg.cpp(150): warning C4018: “<”: 有符号/无符号不匹配
+       Link:
+         E:\VS2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\zhangqi\Desktop\2\Debug\2.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:E:\VS2013\VC\Include\Manifest\dpiaware.manifest /DEBUG /PDB:"C:\Users\zhangqi\Desktop\2\Debug\2.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\zhangqi\Desktop\2\Debug\2.lib" /MACHINE:X86 /SAFESEH Debug\2.res
+         Debug\2.obj
+         Debug\2Dlg.obj
+         Debug\stdafx.obj
+         2.vcxproj -> C:\Users\zhangqi\Desktop\2\Debug\2.exe
+     1>已完成生成项目“C:\Users\zhangqi\Desktop\2\2\2.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.01

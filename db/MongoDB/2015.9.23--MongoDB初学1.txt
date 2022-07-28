@@ -1,0 +1,283 @@
+一.安装
+1.sudo apt-get install mongodb,如果提示找不到，就先更新一下
+  sudo apt-get update
+
+2.安装完成后，用sudo service mongodb start启动服务，此外对应其他命令还有：
+	sudo service mongodb stop --停止服务
+	sudo service mongodb restart --重启服务
+
+3.实现远程连接，
+	zai /etc/mongo.cnf里面把ip改成你自己的IP就行了
+
+
+
+二.创建数据库
+1.上面的步骤完成过后，就可以进入mongodb的shell环境了，键入命令：mongo即可进入
+2.刚开始我们是没有数据库的，所以要建一个新的数据库：use database_name,如果数据已经存在了，将返回现有的数据库
+3.要检查当前选择的数据库用命令db，例如：db,将显示出你正在使用的数据库
+4.查看数据库列表: show dbs,注意，如果一个新建的数据库如果没有任何数据，将不会显示
+
+
+
+三.删除数据库
+1.db.dropDatabase() 命令的基本语法如下：
+这将删除选定的数据库。如果还没有选择任何数据库，然后它会删除默认的"test"数据库
+2.基本步骤为，应该先show dbs看有哪些数据库，然后例如我们会删除"mydb"整个数据库，那么
+db.dropDatabase() 就会删除我们现在所使用的数据库
+
+
+
+四.创建集合（相当于关系数据库的中表）
+1.db.createCollection(name, options)，其中option参数是可选的，下面是option参数说明：
+
+----------------------------------
+capped	 Boolea   如果为true，则启用封顶集合。封顶集合是固定大小的集合，会自动覆盖最早的条目，当它达到其最大大小。如果指定true，则需要也指定尺寸参数
+
+autoIndexID  Boolean	 如果为true，自动创建索引_id字段的默认值是false
+
+size	 number	 指定最大大小字节封顶集合。如果封顶如果是 true，那么你还需要指定这个字段
+
+max	 number	 指定封顶集合允许在文件的最大数量
+
+例如：
+db.createCollection("mycol", { capped : true, autoIndexID : true, size : 6142800, max : 10000 } )
+
+-----------------------------------
+
+2.如果当你用了插入语句过后，数据库将会自动整个集合，例如：
+db.person.insert({name :"zhangqi"}),执行完这条语句后将自动会创建整个person集合
+
+
+
+五.删除集合
+db.collections_name.drop(),该方法如果成功执行返回TRUE,否则返回FLASE
+
+
+
+六.数据类型
+1.MongoDB支持许多数据类型的列表下面给出：
+
+2.String : 这是最常用的数据类型来存储数据。在MongoDB中的字符串必须是有效的UTF-8。
+
+3.Integer : 这种类型是用来存储一个数值。整数可以是32位或64位，这取决于您的服务器。
+
+4.Boolean : 此类型用于存储一个布尔值 (true/ false) 。
+
+5.Double : 这种类型是用来存储浮点值。
+
+6.Min/ Max keys : 这种类型被用来对BSON元素的最低和最高值比较。
+
+7.Arrays : 使用此类型的数组或列表或多个值存储到一个键。
+
+8.Timestamp : 时间戳。这可以方便记录时的文件已被修改或添加。
+
+9.Object : 此数据类型用于嵌入式的文件。
+
+10.Null : 这种类型是用来存储一个Null值。
+
+11.Symbol : 此数据类型用于字符串相同，但它通常是保留给特定符号类型的语言使用。
+
+12.Date : 此数据类型用于存储当前日期或时间的UNIX时间格式。可以指定自己的日期和时间，日期和年，月，日到创建对象。
+
+13.Object ID : 此数据类型用于存储文档的ID。
+
+14.Binary data : 此数据类型用于存储二进制数据。
+
+15.Code : 此数据类型用于存储到文档中的JavaScript代码。
+
+16.Regular expression : 此数据类型用于存储正则表达式
+
+
+
+七.增删查改
+1.插入数据
+例如我们建立一个person的数据库，插入语法为：
+db.person.insert({"name":"zhangqi","age":18})
+
+db.post.insert([
+{
+   title: 'MongoDB Overview', 
+   description: 'MongoDB is no sql database',
+   by: 'tutorials yiibai',
+   url: 'http://www.yiibai.com',
+   tags: ['mongodb', 'database', 'NoSQL'],
+   likes: 100
+},
+
+如果要插入文件，也可以使用  db.post.save(document)。 如果不指定_id在文档中，然后将其 save() 方法和 insert()方法工作一样。如果指定_id，它会替换整个数据文件，其中包含_id 指定save()方法
+
+2.查询数据
+这里要注意两点：
+1).“_id"： 这个字段是数据库默认给我们加的GUID，目的就是保证数据的唯一性
+2). 严格的按照Bson的形式书写文档，不过也没关系，错误提示还是很强大的
+db.person.find()
+就会显示当前数据库的所有数据，如果要查询制定某条记录呢，那可以这样
+db.person.find({"name":"zhangqi"}),这句命令也可以在name整个字段不加双引号
+
+3）结果显示在一个格式化的方式，可以使用 pretty() 方法，例如：
+db.person.find().pretty()
+
+4)除了find() 方法外，还有一个 findOne() 法，返回一个文件
+
+5)mongo中的条件查询
+
+-----------------------------------
+操作	              例子	                                          RDBMS 等同
+Equality              db.mycol.find({"by":"tutorials yiibai"}).pretty()   where by = 'tutorials yiibai'
+
+Less Than             db.mycol.find({"likes":{$lt:50}}).pretty()	  where likes < 50
+
+Less Than Equal	      db.mycol.find({"likes":{$lte:50}}).pretty()	  where likes <= 50
+
+Greater Than	      db.mycol.find({"likes":{$gt:50}}).pretty()	  where likes > 50
+
+Greater Than Equals   db.mycol.find({"likes":{$gte:50}}).pretty()	  where likes >= 50
+Not Equals	      db.mycol.find({"likes":{$ne:50}}).pretty()	  where likes != 50
+
+-----------------------------------
+
+6)mongo中的逻辑查询
+
+1).AND
+-----------------------------------
+例如：
+db.mycol.find({"by":"tutorials yiibai","title": "MongoDB Overview"}).pretty()相当于
+ where by='yiibai' AND title='MongoDB Overview' 
+-----------------------------------
+
+2).OR
+OR条件的基础上要查询文件，需要使用$or关键字。OR 基本语法如下所示：  
+
+>db.mycol.find(
+   {
+      $or: [
+	     {key1: value1}, {key2:value2}
+      ]
+   }
+).pretty()
+-----------------------------------
+例如：
+db.mycol.find({$or:[{"by":"yiibai"},{"title": "MongoDB Overview"}]}).pretty()
+-----------------------------------
+
+3).AND和OR一起使用
+下面给出的例子将显示有像的文件大于100，其标题是“MongoDB Overview'或者是'yiibai' 。等效于 SQL where子句 为 'where likes>10 AND (by = 'yiibai' OR title = 'MongoDB Overview')'
+
+>db.mycol.find("likes": {$gt:10}, $or: [{"by": "yiibai"}, {"title": "MongoDB Overview"}] }).pretty()
+{
+   "_id": ObjectId(7df78ad8902c),
+   "title": "MongoDB Overview", 
+   "description": "MongoDB is no sql database",
+   "by": "yiibai",
+   "url": "http://www.yiibai.com",
+   "tags": ["mongodb", "database", "NoSQL"],
+   "likes": "100"
+}
+>
+
+3.更新数据
+1).
+db.person.update方法的第一个参数为“查找的条件”，第二个参数为“更新的值”,例如：
+db.person.update({name:"qq"} ,{name:"zz", age:20})
+这样，是把整个人物的信息都更新了，如果我只想更新年龄需要怎么办呢？这样做即可：
+db.person.update({name:"qq"} ,{$set:{age:29}})
+
+2).
+save() 方法替换现有的文档和通过新的文档 save() 方法--
+db.COLLECTION_NAME.save({_id:ObjectId(),NEW_DATA})
+
+例如：
+之前有个这样的记录：
+ "_id" : ObjectId(5983548781331adf45ec7), "title":"Yiibai Overview"
+用了save()方法过后
+db.mycol.save(
+   {
+      "_id" : ObjectId(5983548781331adf45ec7), "title":"Yiibai New Topic", "by":"Yiibai"
+   }
+)
+再次查看这条记录就成了：
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"Yiibai New Topic", "by":"Yiibai"}
+
+4.删除数据
+db.person.remove(),注意：remove中如果不带参数将删除所有数据
+db.person.remove({name: "zz"})
+如果有多个重复的数据，而又只想删除一个，可以这样，在第二个参数填1或true，例如
+db.person.remove({name:"zz", 1})
+
+
+
+八.MongoDB的投影
+1.
+所谓投影的意思就是只选择必要的数据而不是选择一个文件的数据的整个。如果一个文档有5个字段，需要显示只有3个，然后选择其中只有3个字段
+
+2.
+例如：
+有个文档为：{ "_id" : ObjectId(5983548781331adf45ec5), "name":"zq", age:20},
+如果只想看到该文档的名字，可以这样：
+db.person.find({name:"zq"},{_id:0, age:0}),注意：_id字段前面一个下划线
+
+
+
+九.MongoDB的记录限制
+1.
+要限制 MongoDB 中的记录，需要使用 limit() 方法。 limit() 方法接受一个数字型的参数，这是要显示的文档数
+
+2.例如有下面文档：
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"MongoDB Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"Yiibai Overview"}
+如果只想显示2个文档，执行下面语句即可：
+db.mycol.find({},{"title":1,_id:0}).limit(2)，如果limit括号里不填参数，就全部显示
+
+3.跳过记录
+除了limit() 方法，还有一个方法skip() 也接受数字类型的参数，并使用跳过的文档数
+例如：
+db.mycol.find({},{"title":1,_id:0}).limit(1).skip(1)
+将显示第二个文档
+
+
+
+十.MongoDB文档的排序
+1.
+要在 MongoDB 中的文档进行排序，需要使用sort()方法。 sort() 方法接受一个文档，其中包含的字段列表连同他们的排序顺序。要指定排序顺序1和-1。 1用于升序排列，而-1用于降序
+
+2.例如下面三个文档，例子将按照标题降序排列
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"MongoDB Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"Yiibai Overview"}
+db.mycol.find({},{"title":1,_id:0}).sort({"title":-1})
+
+
+
+十一.MongoDB索引
+1.为什么会有索引，索引就是拿来提高查询效率的，如果没有索引，普通查询必须会扫描一个文档的集合，然后选择那些文档相匹配的的查询语句，这样做效率很低，而索引是一种特殊的数据结构，存储设置在一个易于遍历形式的数据的一小部分。索引储存一个特定的字段或一组字段的值，在索引中指定的值的字段排列的
+
+2.语法
+db.COLLECTION_NAME.ensureIndex({KEY:1})，
+例如：db.mycol.ensureIndex({"title":1})或者
+db.mycol.ensureIndex({"title":1,"description":-1})
+
+ensureIndex() 方法也可以接受的选项列表（可选），其下面给出的列表：
+-----------------------------------------------------------
+参数			 类型	 	 描述
+background		 Boolean	 在后台建立索引，以便建立索引并不能阻止其他数据库活动。指定true建立在后台。默认值是 false.
+
+unique	        	 Boolean	 创建唯一索引，以便收集不会接受插入索引键或键匹配现有的值存储在索引文档。指定创建唯一索引。默认值是 false.
+
+name	 	 	string	 	索引的名称。如果未指定，MongoDB中都生成一个索引名索引字段的名称和排序顺序串联.
+
+dropDups	 	Boolean	 创建一个唯一索引的字段，可能有重复。 MongoDB的索引只有第一次出现的一个键，从集合中删除的所有文件包含该键的后续出现的。指定创建唯一索引。默认值是 false.
+
+sparse			Boolean	 如果为true，指数只引用文档指定的字段。这些索引使用更少的空间，但在某些情况下，特别是各种不同的表现。默认值是 false.
+
+expireAfterSeconds	integer	 指定一个值，以秒为TTL控制多久MongoDB的文档保留在此集合.
+
+v			index version	 索引版本号。默认的索引版本取决于mongodb 运行的版本在创建索引时.
+
+weights	 		document	 权重是从1到99999范围内的数，表示该字段的意义，相对于其他的索引字段分数.
+
+default_language	string	 对于文本索引时，决定停止词和词干分析器和标记生成规则列表的语言。默认值是 english.
+
+language_override	 tring	 对于文本索引时，指定的名称在文档中包含覆盖默认的语言，语言字段中。默认值是语言。
+-----------------------------------------------------------
+

@@ -1,0 +1,29 @@
+一.
+Linux下一切皆文件。
+1.在根目录下的/proc
+
+二.文件描述符
+--文件描述符是个很小的正整数，它是一个索引值，指向内核为每个进程所维护的该进程打开文件的记录表
+--例如：每个进程启动时都打开3个文件：
+ 	标准输入文件（stdin）
+	标准输出文件（stdout）
+	标准出错（stderr）
+--这三个文件分别对应文件描述符0,1,2
+--实际上，我们可能已经用过基于描述的IO操作，但却没有意识到
+--编程中，应该使用<unistd.h>中定义的STDIN_FILENO,STDOUT_FILENO,STDERR_FILENO,代表数字0,1,2
+比如说，我们有时用scanf会不小心造成缓冲区溢出，则此时我们可以用read(STDIN_FILENO,buf,sizeof(buf)，意思是向标准输入设备读数据，就可以避免这种情况
+
+三，如何使用文件描述符
+1).打开文件描述符
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+int open(const char* pathname,int flags);
+--必须把flags设置为0_RDONLY--只读
+0_WRONLY--只写
+0_RDWR--读写
+0_CREAT--如果文件不存在就创建
+0_APPEND--如果文件不存在就追加
+成功后返回一个文件描述符，失败返回-1，并设置errno变量
+int close(int fd);

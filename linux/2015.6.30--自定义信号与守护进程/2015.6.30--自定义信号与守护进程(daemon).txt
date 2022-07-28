@@ -1,0 +1,208 @@
+一.自定义信号
+--第一个进程：
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+
+int statu = 0;
+void catch_signal(int sign)
+{
+	switch (sign)
+	{
+	case SIGINT:printf("SIGINT signal\n"); 
+	break;
+	case SIGUSR1:status = 1; 
+	break;
+	}
+}
+
+
+int main(int arg, char* args[])
+{
+	signal(SIGINT, catch_signal);
+	signal(SIGUSR1, catch_signal);
+	int i = 0;
+	while (1)
+	{
+		sleep(100);
+		if(status == 1)
+			printf("hello%d\n",++i);
+		sleep(1);
+	}
+	return 0;
+}
+
+--第二个进程：
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+
+int main(int arg, char* args[])
+{
+	if (arg > 1)
+	{
+		int pid = atoi(args[1]);
+		kill(pid,SIGUSR1);
+	}
+	return 0;
+}
+
+这样两个进程就达到了通信的目的。
+
+
+二.守护进程（daemon）
+1.
+--守护进程是一个后台进程，它无需用户输入就能运行，经常提供某种服务
+--Linux作为服务器是，主要的进程也都是为系统或用户提供后台服务功能
+--常见的守护进程有WEB服务器，邮件服务器，数据库服务器等
+--守护进程不能控制终端，所有任何输入或者输出都需要特殊处理
+2.
+工作模式步奏：
+第一步：
+--首先执行fork后让父进程退出
+--和多数程序一样，一个守护进程是从shell脚本或者命令行启动的
+--但守护进程和应用程序不一样，因为它们不是交互式的，因为它们在后台没有控制终端
+--父进程在fork子进程退出后就消除了控制终端
+--守护进程既不需要从标准输入设备读取信息，也不需要从标准输出设备输出信息
+
+第二步：
+--在子进程中调用setsid，取消进程和任何控制终端的关联
+
+第三步：
+--让根目录称为子进程的当前工作目录
+
+第四步：
+--设置进程的umask为0，为了避免守护进程集成的umask收到创建文件和目录操作的干扰，这一步是必要
+--如果一个进程集成了父进程的umask 055，它屏蔽掉了group和other的读和执行权。如果守护进程接着创建了一个文件，那么对group和other用户操作这个文件会带来麻烦
+--守护进程调用 umask 0避免了这种情况，当创建文件的时候给与守护进程更大的灵活性
+
+第五步：
+--关闭子进程继承的任何不必要的文件描述符
+--对于子进程来说，没有理由保持从父进程继承来的打开的文件描述符
+--具体关闭哪些取决于具体的守护进程需要和要求，很难精确的说明规则
+
+三.
+相关函数：
+1.pid_t setsid()
+--该函数创建一个新回话和一个新进程组，然后守护进程成为新回话的会话领导，以及新进程组的进程组领导
+--该函数调用还保证新回话没有控制终端
+--如果调用进程已经是一个进程组的领导进程，setside调用失败
+--成功返回新回话ID，失败返回-1，兵设置errno
+
+2.int chdir(const char* pathname)
+--该函数根据参数pathname设置当前工作目录
+--成功返回0，失败返回-1，兵设置errno
+注意：
+设置跟目录为：chdir("/")
+
+3.mode_t umask(mode_t mask)
+--该函数调用把守护进程的umask设置为0，这样就取消了来自父进程的umask，他们能够潜在的干扰创建文件和目录，通俗讲，umask就是给文件设置权限
+
+例如：
+int main()
+{
+	pid_t pid = fork();
+	if(pid > 0)
+		exit(0);
+	if(pid == 0)
+	{
+		setsid();
+		chdir("/");
+		umask(0);
+		//关闭不必要的文件描述符
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+	}	
+}
+
+四.监督守护进程
+1.
+要想知道守护进程做了什么工作，可让syslog提供服务，记录守护进程的各种输出信息
+
+2.
+openlog打开日志，syslog写入日志，closelog关闭日志。
+注意：
+严格来说，openlog和closelog是可选的，因为函数syslog在首次使用的时候自动打开日志文件，Linux系统上日志文件通常是/var/log/messages
+#include <syslog.h>
+void openlog(const char* ident,int option,int facility);
+ident:要向每个消息加入的字符串，典型的情况是要设置成程序的名称
+
+option:有多个值：
+LOG_CONS:如果系统日志服务不能用，写入控制台
+LOG_NDELAY:立即打开连接，正常情况下，知道发送第一条消息才打开连接
+LOG_PERROR:打印输出到stderr
+LOG_PID:每条消息中包含进程pid
+如果要加多个值，用“或”即可
+
+facitity:指定程序发送的消息的类型
+LOG_AUTHPRIV:安全授权消息
+LOG_CRON:时钟守护进程：cron和at
+LOG_DAEMON:其他系统守护进程
+LOG_KERN:内核消息
+LOG_LPR:打印机子系统
+LOG_MAIL:邮件子系统
+LOG_USER:默认
+
+void syslog(int priority,const char* format,...);
+priority:指定消息的重要性
+LOG_EMERG:系统不能使用
+LOG_ALERT:立即采取措施
+LOG_CRIT:紧急事件
+LOG_ERR:出错条件
+LOG_WARNING:警告条件
+LOG_NOTICE:正常但重大事件
+LOG_INFO:信息消息
+LOG_DEBUG:调试信息
+
+void closelog()
+
+
+五.通过shell脚本结束守护进程
+1.在使用守护进程的时候，可能会在后台生成多个守护进程，为了解决这个办法，就会用到shell脚本
+
+2.编写：
+在Linux下，守护进程的潜规则名字后面有小写的d，生成好后，就开始编写脚本：
+//用该目录的sh程序执行
+#!/bin/sh
+//定义变量,记住有个符号（1旁边）
+//代表这个命令的结果存到WHOAMI的变量去
+WHOAMI=`whoami`
+//在该用户（WHOAMI)下找到名字为abc的进程
+//找到过后，可能有多个进程，这个 awk '{print //$1}'`代表命令结果中的进程PID
+PID=`ps -u $WHOAMI | grep abc | awk '{print $1}'`
+
+//如果PID不为空，就循环杀死PID
+if (test "$PID" != "")then
+	kill -s 2 $PID
+fi
+
+注意：脚本文件名不要是abc，不然脚本文件也会被print出来
+
+3.执行
+编写完脚本后，可能该脚本文件权限不够，这时要改该文件权限：chmod u+x abc即可
+
+六.确保守护进程只执行一个
+
+//用该目录的sh程序执行
+#!/bin/sh
+//定义变量,记住有个符号（1旁边）
+//代表这个命令的结果存到WHOAMI的变量去
+WHOAMI=`whoami`
+//在该用户（WHOAMI)下找到名字为abc的进程
+//找到过后，可能有多个进程，这个 awk '{print //$1}'`代表命令结果中的进程PID
+PID=`ps -u $WHOAMI | grep abc | awk '{print $1}'`
+
+//如果PID等于空，就启动pid
+if (test "$PID" = "")then
+	./abc
+fi
+
+
+注意：脚本文件名不要是abc，不然脚本文件也会被print出来

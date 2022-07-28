@@ -1,0 +1,58 @@
+26-07-2022 13:53:01
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\Discord-DX11-Overlay-Hook\x64\Release\DiscordOverlayHook.dll
+Target             : 03 Rendering a Cube.exe
+Target PID         : 25788
+Source             : NtCreateThreadEx.cpp in SR_NtCreateThreadEx at line 403
+Errorcode          : 0x10100009
+Advanced errorcode : 0x00000102
+Injectionmode      : LoadLibraryExW
+Launchmethod       : NtCreateThreadEx
+Platform           : x64/x86 (native)
+HandleValue        : 0x00000000
+Flags              : 0x00000000
+
+26-07-2022 13:54:22
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\Discord-DX11-Overlay-Hook\x64\Release\DiscordOverlayHook.dll
+Target             : 03 Rendering a Cube.exe
+Target PID         : 58152
+Source             : NtCreateThreadEx.cpp in SR_NtCreateThreadEx at line 403
+Errorcode          : 0x10100009
+Advanced errorcode : 0x00000102
+Injectionmode      : LoadLibraryExW
+Launchmethod       : NtCreateThreadEx
+Platform           : x64/x86 (native)
+HandleValue        : 0x00000000
+Flags              : 0x00000000
+
+26-07-2022 13:56:03
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\Discord-DX11-Overlay-Hook\x64\Release\DiscordOverlayHook.dll
+Target             : 03 Rendering a Cube.exe
+Target PID         : 30580
+Source             : NtCreateThreadEx.cpp in SR_NtCreateThreadEx at line 403
+Errorcode          : 0x10100009
+Advanced errorcode : 0x00000102
+Injectionmode      : LoadLibraryExW
+Launchmethod       : NtCreateThreadEx
+Platform           : x64/x86 (native)
+HandleValue        : 0x00000000
+Flags              : 0x00000000
+
+27-07-2022 14:12:31
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\my_code\27-07-2022 14:21:30
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\my_code\27-07-2022 14:24:59
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\my_code\27-07-2022 14:29:07
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\my_code\

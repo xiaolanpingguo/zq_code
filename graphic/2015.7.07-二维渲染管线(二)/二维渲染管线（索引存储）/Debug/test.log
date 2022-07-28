@@ -1,0 +1,33 @@
+﻿cl : Command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  test.cpp
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\test.cpp(35): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Render2D.cpp
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(183): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(184): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(185): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(186): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(187): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(188): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(268): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(269): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(270): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(271): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(272): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(273): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(389): warning C4838: conversion from 'LONG' to 'float' requires a narrowing conversion
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(389): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(390): warning C4838: conversion from 'LONG' to 'float' requires a narrowing conversion
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(390): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(409): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(419): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(436): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(446): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(597): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(596): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(595): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(593): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(592): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\render2d.cpp(591): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  Generating Code...
+Render2D.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  test.vcxproj -> D:\资料备份\学习资料\计算机图形学\2015.7.07-二维渲染管线(二)\二维渲染管线（索引存储）\Debug\test.exe

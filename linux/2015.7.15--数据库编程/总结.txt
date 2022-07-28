@@ -1,0 +1,68 @@
+重点：
+一.
+1.SQL语句的重点是SELECT WHERE条件和多表查询
+
+2.聚合函数一般是与group by配合使用的，
+多表查询有个原则，不同的表之间一定要有一个字段时关联的。表和表之间的关系就是通过关联的字段建立起来的。
+{表里面的列称为字段（field）,行称为记录（record）}
+
+3.对于SELECt后面的WHERE字句中用到的字段，原则是必须建相应的索引。索引不要乱箭，精准，不能多。
+索引可以提高SELECT语句的速度，但代价是降低了INSERT，UPDATE和DELETE语句的速度。
+
+
+二.数据库编程
+1.
+/usr/include是gcc查找头文件的默认路径。
+
+2.-------------mysql编程首先要做的工作-----
+1、头文件#include <mysql/mysql.h>
+2、makefile文件，链接的时候添加-lmysqlclient选项（意思是要链接到libmysqlclient.so这个库文件）
+数据库client与server之间也是采用TCP协议
+
+3.-------------连接到mysql步骤-------------
+1、初始化client
+2、建立连接
+3、client向server发送SQL语句，server将执行SQL语句的结果返回给client
+4、断开连接
+
+4.--------------经验--------------------
+写网络程序的原则，第一次写的时候，一定要拿本机做实验，
+"localhost" = "127.0.0.1"
+
+
+5.
+编写mysql程序，成功连接到server之后，以一个执行的语句是设置字符集SET NAMES utf8;
+
+
+6.
+linux下printf函数是以\n结尾的字符串才输出到屏幕的，如果没有\n直到输出缓冲区满了以后才打印到屏幕
+
+7.--------控制台程序，输入退格键不回显的方法---
+1.命令
+stty erase ^H
+
+2.
+1.
+可以实现在输入状态下，按退格键删除字符，不回显
+
+2.
+调用tcsetattr修改linux基本输出输入的控制字符定义
+
+//////////////////////////////去掉退格键回显的代码
+	struct termios term;//定义一个temions结构
+	if(tcgetattr(STDIN_FILENO, &term) == -1)//得到系统termion的设置
+	{
+		printf("tcgetattr error is %s\n", strerror(errno));
+		return;
+	}
+	term.c_cc[VERASE] = '\b';//'\b'为退格键的ASCII码
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &term) == -1)//设置系统termion
+	{
+		printf("tcsetattr error is %s\n", strerror(errno));
+	}
+
+///////////////////////////////
+
+mysql_fetch_row返回是记录（行）
+mysql_fetch_field返回是字段（列）
+函数可以没有返回值，也没有参数，逐步的完善。

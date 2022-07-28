@@ -1,0 +1,348 @@
+SceneManager.h
+
+	#ifndef _SCENE_MANAGER_H_
+	#define _SCENE_MANAGER_H_
+
+	class CScene;
+
+	//加载场景
+	bool AddScene(CScene* pScene);
+
+	//设置当前场景
+	bool SetCurScene(int CurScene);
+
+	//得到指定场景
+	CScene* GetScene(int Scene);
+
+	//游戏循环标志
+	bool Play();
+
+	//退出游戏
+	void Exit();
+
+	//游戏运行
+	void GameRun();
+
+	#endif
+
+	SceneManager.cpp
+
+	#include "SceneManager.h"
+	#include "Scene.h"
+
+	CScene* g_Scene[8] = {}; //场景指针数组
+	int g_SceneNum = 0; //场景数量
+	int g_CurScene = -1; //当前场景
+	bool g_Play = true; //游戏循环标志
+
+	bool AddScene(CScene* pScene)
+	{
+		if (g_SceneNum == 8)
+			return false;
+		g_Scene[g_SceneNum++] = pScene;
+		return true;
+	}
+
+	bool SetCurScene(int CurScene)
+	{
+		if (CurScene < 0 || CurScene >= g_SceneNum)
+			return false;
+		g_CurScene = CurScene;
+		return true;
+	}
+
+	CScene* GetScene(int Scene)
+	{
+		return Scene < 0 || Scene >= g_SceneNum ? 0 : g_Scene[Scene];
+	}
+
+	bool Play()
+	{
+		return g_Play;
+	}
+
+	void Exit()
+	{
+		g_Play = false;
+	}
+
+	void GameRun()
+	{
+		while (Play())
+			g_Scene[g_CurScene]->Run();
+	}
+
+	Scene.h
+
+	#ifndef _SCENE_H_
+	#define _SCENE_H_
+
+	class CScene //场景
+	{
+	public:
+		virtual void Run();
+	};
+
+	#endif
+
+	Scene.cpp
+
+	#include "Scene.h"
+
+	void CScene::Run(){}
+
+	SetScene.h
+
+	#ifndef _SET_SCENE_H_
+	#define _SET_SCENE_H_
+
+	#include "Scene.h"
+
+	class CSetScene : public CScene
+	{
+		int sel;
+	public:
+		CSetScene();
+		void Run();
+	};
+
+	#endif
+
+	SetScene.cpp
+
+	#include "SetScene.h"
+	#include "GameScene.h"
+	#include "SceneManager.h"
+	#include <iostream>
+	#include <conio.h>
+
+	CSetScene::CSetScene()
+	:
+	sel(0)
+	{}
+		
+	void CSetScene::Run()
+	{
+		//访问CGameScene里面的beep，请注意我们会在
+		//main里面将游戏场景的地址放在下标1上面，所
+		//以这个地方返回的地址确实是游戏场景的地址
+
+		CGameScene* pGameScene = (CGameScene*)GetScene(1);
+
+		system("cls");
+		if (sel == 0)
+		{
+			std::cout<<"-> 返回"<<std::endl;
+			std::cout<<"   音效";
+			std::cout<<(pGameScene->beep ? "on" : "off")<<std::endl;
+		}
+		else
+		{
+			std::cout<<"   返回"<<std::endl;
+			std::cout<<"-> 音效";
+			std::cout<<(pGameScene->beep ? "on" : "off")<<std::endl;
+		}
+
+		int input = _getch();
+		if (input == 'w' || input == 'W')
+		{
+			if (sel == 1)
+				sel = 0;
+		}
+		if (input == 's' || input == 'S')
+		{
+			if (sel == 0)
+				sel = 1;
+		}
+		if (input == '\r')
+		{
+			if (sel == 0)
+				SetCurScene(1);
+			else
+				pGameScene->beep = !pGameScene->beep;
+		}
+	}
+
+	StartScene.h
+
+	#ifndef _START_SCENE_H_
+	#define _START_SCENE_H_
+
+	#include "Scene.h"
+
+	class CStartScene : public CScene
+	{
+		int sel;
+	public:
+		CStartScene();
+		void Run();
+	};
+
+	#endif
+
+	StartScene.cpp
+
+	#include "StartScene.h"
+	#include "SceneManager.h"
+	#include <iostream>
+	#include <conio.h>
+
+	CStartScene::CStartScene()
+	:
+	sel(0)
+	{}
+
+	void CStartScene::Run()
+	{
+		system("cls");
+
+		if (sel == 0)
+		{
+			std::cout<<"-> 开始游戏"<<std::endl;
+			std::cout<<"   结束游戏"<<std::endl;
+		}
+		else
+		{
+			std::cout<<"   开始游戏"<<std::endl;
+			std::cout<<"-> 结束游戏"<<std::endl;
+		}
+
+		int input = _getch();
+		if (input == 'w' || input == 'W')
+		{
+			if (sel == 1)
+				sel = 0;
+		}
+		if (input == 's' || input == 'S')
+		{
+			if (sel == 0)
+				sel = 1;
+		}
+		if (input == '\r')
+		{
+			if (sel == 0)
+			{
+				SetCurScene(1);
+			}
+			else
+			{
+				Exit();
+			}
+		}
+	}
+
+	GameScene.h
+
+	#ifndef _GAME_SCENE_H_
+	#define _GAME_SCENE_H_
+
+	#include "Scene.h"
+
+	class CSetScene;
+
+	class CGameScene : public CScene
+	{
+		int x, y;
+		bool beep;
+		friend class CSetScene;
+	public:
+		CGameScene();
+		void Run();
+	};
+
+	#endif
+
+	GameScene.cpp
+
+	#include "GameScene.h"
+	#include "SceneManager.h"
+	#include <iostream>
+	#include <windows.h>
+	#include <conio.h>
+
+	#define _GAME_W 10
+	#define _GAME_H 6
+	#define _GAME_S (_GAME_W * _GAME_H)
+
+	CGameScene::CGameScene()
+	:
+	x(0),
+	y(0),
+	beep(true)
+	{}
+
+	void CGameScene::Run()
+	{
+		system("cls");
+		for (int i = 0; i < _GAME_S; ++i)
+		{
+			if (i == x + y * _GAME_W)
+				std::cout<<"★";
+			else
+				std::cout<<"□";
+			if (i % _GAME_W == _GAME_W - 1)
+				std::cout<<std::endl;
+		}
+
+		int input = _getch();
+		if ((input == 'w' || input == 'W') && y > 0)
+		{
+			--y;
+			if (beep)
+				Beep(500, 100);
+		}
+		if ((input == 's' || input == 'S') && y < _GAME_H - 1)
+		{
+			++y;
+			if (beep)
+				Beep(500, 100);
+		}
+		if ((input == 'a' || input == 'A') && x > 0)
+		{
+			--x;
+			if (beep)
+				Beep(500, 100);
+		}
+		if ((input == 'd' || input == 'D') && x < _GAME_W - 1)
+		{
+			++x;
+			if (beep)
+				Beep(500, 100);
+		}
+		if (input == 27)
+		{
+			SetCurScene(0);
+		}
+		if (input == '\r')
+		{
+			SetCurScene(2);
+		}
+	}
+
+
+	1.cpp
+
+	#include <iostream>
+	#include "Scene.h"
+	#include "SceneManager.h"
+	#include "StartScene.h"
+	#include "GameScene.h"
+	#include "SetScene.h"
+
+	void main()
+	{
+		CStartScene Start;
+		CGameScene Game;
+		CSetScene Set;
+
+		AddScene(&Start);
+		AddScene(&Game);
+		AddScene(&Set);
+
+		SetCurScene(0);
+
+		GameRun();
+
+		system("pause");
+	}
+}

@@ -1,0 +1,89 @@
+一.sql函数（一般与group by一起使用）
+1.SUM([DISTINCT] FIELDNAME)
+--求指定列之和，[DISTINCT] 选项表示剔除重复记录
+例如：
+年龄的和（不剔除重复）
+SELECT SUM(age) FROM table1
+年龄的和（剔除重复的值）
+SELECT SUM(distinct age) FROM table1
+
+2.MAX([DISTINCT] FIELDNAME)
+--求指定列的最大值
+例如：SELECT MAX(age) FROM table1
+
+3.MIN([DISTINCT] FIELDNAME)
+--求指定列的最大值
+
+4.COUNT([DISTINCT] FIELDNAME)
+--求指定列记录总数
+例如：
+--select count(*) from table1;代表这个表有10条记录
+
+--select count(distinct age) from table1;
+就代表年龄中不重复的记录有多少条
+
+5.AVG([DISTINCT] FIELDNAME)
+--求指定列平均值
+
+例如：select avg(age) from table1;
+求年龄中的平均值
+
+select avg(age) from table1 where sex = '女';
+求女性的年龄的平均值
+
+6.在年龄中找出最大年龄的那个人名字
+ select name from table1 where age = (select max(age) from table1); 
+
+
+二.GROUP BY子句
+1.将查询结果根据指定字段分组
+--group by fieldname[DESC]
+例如：
+select count(class) from table1 group by class
+就是以组为单位计算班级的个数
+
+例如：
+select max(age) from table1 group by class
+就是以班级为单位计算班级中的最大年龄
+
+再例如；
+统计一个班有多少
+
+2.将查询结果根据指定字段排序
+--ORDER by fieldname[DESC]
+例如：select * from table1 ORDER by age;
+以年龄排序（升序）
+
+例如：select * from table1 ORDER by age desc;
+以年龄排序（降序）
+
+
+三.select语句的多表查询
+例如：
+select * from table1, table2 where table1.age = table2.age;
+--查询表1和表2年龄相等的
+
+例如：找张老师班上年龄最大的学生名字
+第一步：找张老板班上年龄最大的
+select max(c.age) from table1 c, table3 d where c.class = d.class and d.teacher = '张老师';
+c和d分别是table1和table3的别名
+
+第二步：找出年龄后，再找名字
+select max(c.age) from table1 c, table3 d where c.class = d.class and d.teacher = '张老师' and age = 43;
+
+合在一起就为：
+select max(c.age) from table1 c, table3 d where c.class = d.class and d.teacher = '张老师' and a.age = (select max(c.age) from table1 c, table3 d where c.class = d.class and d.teacher = '张老师');
+
+
+四.索引
+--建立索引(允许使用重复的值）：
+--CREATE INDEX name
+
+例如：create index table1_age on table1(age);
+--在table1的年龄上建立一个年龄的索引
+
+--建立索引(唯一,意味着两个行不能拥有相同的索引值）：
+--CREATE UNIQUE INDEX name
+
+例如：在带有组建的表上可以为ID建立一个唯一的索引：
+create table table2 (ID int(11) NOT NULL auto increment, NAME varchar(20), AGE INT, PRIMARY KEY (ID));

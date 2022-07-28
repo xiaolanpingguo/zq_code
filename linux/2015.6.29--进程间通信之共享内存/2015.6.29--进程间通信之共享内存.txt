@@ -1,0 +1,57 @@
+一.共享内存
+--创建：
+#include <sys/ipc.h>
+#include <sys/shm.h>
+int shmget(key_t key,size_t size,int shm-flg)
+key:既可以是IPC_PRIVATE，也可以是ftok函数返回的一个关键字
+size:指定段的大小
+flags:八进制数，0xxx。转化为二进制后分别为rw-rw-rw
+成功返回段标示符，失败返回-1
+例如：int shmid = shmget(IPC_PRIVATE,1024,0666)
+后面的0666代表读写读写读写
+
+二.查看共享内存
+1.查看进程间的资源
+ipcs - options
+其中ipcs -m 是查看共享内存的
+
+三.附加共享内存
+1.共享内存创建完后，就要去使用
+void* shmat(int shmaid, const void* shmaddr,int shmflg)
+shmid:是要附加的共享内存区标示符
+shmaddr：设为0即可
+shmflg:可以设为SHM_RDONLY，意味着附加段是只读的
+成功返回附加段的地址，失败返回-1，并设置errno
+
+2.释放
+int shmdt(const void* shmaddr)
+shmdt:是将附加在shmaddr的段从调用进程的地址空间分离出去，这个地址必须是shmat返回的
+
+例如：
+int main(int arg,char* args[])
+{
+	char* shmbuf;
+	int shmid = 0;
+	if(arg > 2）
+	{
+		//通过命令行传递共享内存ID号
+		shmid = atoi(args[1])
+		//0表示可读可写
+		shmbuf = shmat(shmid,0,0)
+		//写
+		if(atoi(args[2]) == 1)
+			scanf(%s",shmbuf);
+		//读
+		if(atoi(args[2]) == 2)
+			printf(%s",shmbuf);
+		//释放
+		shmdt(shmbuf)
+	｝
+}
+运行程序时，键入./a 1 就会写入你输入的东西，然后
+键入./a 2 就会读取共享内存的数据了
+
+四.删除共享内存
+执行命令:ipcrm shm shmid
+或者函数删除：
+shmctl(id,IPC_RMID,0）

@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="界面相关">
+      <UniqueIdentifier>{ac87ee09-711c-45dd-86f8-1b8d59c96a08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\资料修改界面">
+      <UniqueIdentifier>{0bc3aa4c-5719-45cc-955d-9b6ea2183aac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\私聊界面">
+      <UniqueIdentifier>{bef3d222-e91f-439a-97ba-dfc17e0da792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\游戏大厅">
+      <UniqueIdentifier>{fd996dec-126e-4992-b86b-a1c6a855b76b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\注册界面">
+      <UniqueIdentifier>{c001589f-f083-4e4a-b5ab-038f47b504cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\登陆界面">
+      <UniqueIdentifier>{d0be7025-4d5d-4d47-bd4d-8360e47a0efa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\游戏界面">
+      <UniqueIdentifier>{183e1f44-e1f1-48e2-8f44-2d96268fb462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面相关\游戏选项界面">
+      <UniqueIdentifier>{abf56366-6718-45d8-9510-f57c93c225ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="工具">
+      <UniqueIdentifier>{71ea8d5e-629b-4a95-8f01-5d26c938390a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="其他">
+      <UniqueIdentifier>{e4dce853-0216-4bb6-b799-f524154e5874}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="其他\源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="其他\头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="数据类型">
+      <UniqueIdentifier>{a4fd6dc9-68f1-435e-ad62-245cc0b65b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="全局数据定义">
+      <UniqueIdentifier>{ee81b08a-bde7-496f-9ad1-2fd19a9f48a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="协议相关">
+      <UniqueIdentifier>{15ecd22d-a569-4fdf-97b6-c3161631183e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="协议相关\协议索引">
+      <UniqueIdentifier>{6e9dca11-07fd-471d-b99f-a8531be68e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="协议相关\协议派发器">
+      <UniqueIdentifier>{9e09244a-cf06-4577-9c22-0e152487351a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="协议相关\协议筛选器">
+      <UniqueIdentifier>{c14702c0-6867-42d6-9aa9-1d90772567be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DataChange.cpp">
+      <Filter>界面相关\资料修改界面</Filter>
+    </ClCompile>
+    <ClCompile Include="PTalkDlg.cpp">
+      <Filter>界面相关\私聊界面</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHallDlg.cpp">
+      <Filter>界面相关\游戏大厅</Filter>
+    </ClCompile>
+    <ClCompile Include="Register.cpp">
+      <Filter>界面相关\注册界面</Filter>
+    </ClCompile>
+    <ClCompile Include="Login.cpp">
+      <Filter>界面相关\登陆界面</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>界面相关\游戏界面</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSel.cpp">
+      <Filter>界面相关\游戏选项界面</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryPool.cpp">
+      <Filter>工具</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpClient.cpp">
+      <Filter>工具</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHall.cpp">
+      <Filter>其他\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>其他\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtocolIndex.cpp">
+      <Filter>协议相关\协议索引</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtocolMessageDispatcher.cpp">
+      <Filter>协议相关\协议派发器</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtocolTranslate.cpp">
+      <Filter>协议相关\协议筛选器</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataChange.h">
+      <Filter>界面相关\资料修改界面</Filter>
+    </ClInclude>
+    <ClInclude Include="PTalkDlg.h">
+      <Filter>界面相关\私聊界面</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHallDlg.h">
+      <Filter>界面相关\游戏大厅</Filter>
+    </ClInclude>
+    <ClInclude Include="Register.h">
+      <Filter>界面相关\注册界面</Filter>
+    </ClInclude>
+    <ClInclude Include="Login.h">
+      <Filter>界面相关\登陆界面</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>界面相关\游戏界面</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSel.h">
+      <Filter>界面相关\游戏选项界面</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryPool.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="SqQueue.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpClient.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHall.h">
+      <Filter>其他\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>其他\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>其他\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DataType.h">
+      <Filter>数据类型</Filter>
+    </ClInclude>
+    <ClInclude Include="DataDefine.h">
+      <Filter>全局数据定义</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtocolIndex.h">
+      <Filter>协议相关\协议索引</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtocolMessageDispatcher.h">
+      <Filter>协议相关\协议派发器</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtocolTranslate.h">
+      <Filter>协议相关\协议筛选器</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\GameHall.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GameHall.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\GameHall.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

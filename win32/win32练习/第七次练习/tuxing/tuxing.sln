@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tuxing", "tuxing\tuxing.vcproj", "{4FD3D45E-F74D-45F0-A2F7-BA9B6A6E595C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FD3D45E-F74D-45F0-A2F7-BA9B6A6E595C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4FD3D45E-F74D-45F0-A2F7-BA9B6A6E595C}.Debug|Win32.Build.0 = Debug|Win32
+		{4FD3D45E-F74D-45F0-A2F7-BA9B6A6E595C}.Release|Win32.ActiveCfg = Release|Win32
+		{4FD3D45E-F74D-45F0-A2F7-BA9B6A6E595C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

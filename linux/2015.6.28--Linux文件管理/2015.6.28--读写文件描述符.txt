@@ -1,0 +1,221 @@
+一.
+read读和write写
+ssize_t read(int fd,void* buf,size_t count)
+ssize_t write(int fd,void* bug,size_t count)
+--read用于从文件描述符对应的文件读取数据，成功返回读出的字节数
+--参数fd必须是用open调用返回的有效的文件描述符
+--参数buf为读出数据的缓冲区，count指定读出的字节数
+--成功返回读取字节数，如果遇到EOF，返回0，出错返回-1
+
+二.
+1.使用fstat获取文件信息
+int fstat(int fd,struct stat* buf)
+--参数fd必须是Open调用返回的有效文件描述符
+其中struct stat的定义如下：
+
+           struct stat {
+               dev_t     st_dev;     /* ID of device containing file */
+               ino_t     st_ino;     /* inode number */
+               mode_t    st_mode;    /* protection */
+               nlink_t   st_nlink;   /* number of hard links */
+               uid_t     st_uid;     /* user ID of owner */
+               gid_t     st_gid;     /* group ID of owner */
+               dev_t     st_rdev;    /* device ID (if special file) */
+               off_t     st_size;    /* total size, in bytes */
+               blksize_t st_blksize; /* blocksize for file system I/O */
+               blkcnt_t  st_blocks;  /* number of 512B blocks allocated */
+               time_t    st_atime;   /* time of last access */
+               time_t    st_mtime;   /* time of last modification */
+               time_t    st_ctime;   /* time of last status change */
+           };
+其中有一套宏可以正确计算该结构体的stat成员:
+S_ISREG(m)：是否为普通文件
+S_ISDIR(m)：是否为目录
+S_ISCHR(m)：是否为字符设备(charaoter device)
+S_ISBLK(m)：是否为块设备（block device)
+S_ISFIFO(m)：是否为管道（named pipe)
+S_ISLNK(m)：是否为链接文件
+S_ISSOCK(m)：是否为套接字文件
+2.使用stat获取文件信息
+例如下面的程序来判断是否为一个普通文件：
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+
+int main(int arg,char* args[])
+{
+
+
+	int fd = open(args[1], O_RDONLY);
+	if (fd == -1)
+		printf("%s\n", strerror(errno));
+	else
+	{
+		printf("success  fd = %d\n", fd);
+		struct stat buf;
+		fstat(fd, &buf);
+		if (S_ISREG(buf.st_mode))
+			printf("%s is charfile\n", args[1]);
+		close(fd);
+	}
+	return 0;
+}
+int stat(const char* path,struct stat* buf)
+--参数path是路径加文件名
+
+三.
+char* getpass(const char* prompt);
+--读写用户输入，屏幕不回显
+prompt:屏幕提示字符
+返回值为用户键盘输入的字符串
+
+四.
+--格式化输入和输出
+int fprintf(FILE* stream,const char* fromat..)
+int fscanf(FILE* stream,const char* fromat..)
+用于向文件格式化的输入和输出
+
+
+五.
+--行输入和输出
+char fgets(char* s,int size,FILE* stream)
+char fputs(char* s,FILE* stream)
+fgets从文件读取一行，返回EOF代表文件结尾
+fputs向文件写入一行
+
+六.
+--文件改名和删除
+int remove(const char* pathname)
+inr rename(const char* oldpath,const char* newpath)
+remove删除pathname指向的文件名
+rename修改文件名称
+执行成功返回0，失败返回-1，错误码保存在变量errno中
+
+七.利用读写函数写一个log
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <time.h>
+void writelog(const char* log)
+{
+	time_t tData;
+	struct tm* eventTime;
+	time(&tData);
+	eventTime = localtime(&tData);
+	int iYear = eventTime->tm_year + 1900;
+	int iMon = eventTime->tm_mon + 1;
+	int iDay = eventTime->tm_mday;
+	int iHour = eventTime->tm_hour;
+	int iMin = eventTime->tm_min;
+	int iSec = eventTime->tm_sec;
+	char sData[32];
+	sprintf(sData, "%04d - %02d - %02d", iYear, iMon, iDay);
+	char sTime[32];
+	sprintf(sTime, "%02d : %02d : %02d", iHour, iMin, iSec);
+	char s[1024];	
+	sprintf(s, "%s %s %s\n", sData, sTime, log);
+	FILE* pf = fopen("my.log", "a+");
+	if (pf == NULL)
+		printf("write log mylog error:%s\n", strerror(errno));
+	else
+	{
+		fputs(s, pf);
+		fclose(pf);
+	}
+}
+int main(int arg,char* args[])
+{
+	writelog("proccess begin");
+	printf("hello world\n");
+	writelog("proccess end");
+	return 0;
+}
+注意：生成的my.log是生成在执行程序时的目录，除非在代码中指定了一个绝对路径
+
+八.
+--找到当前目录
+char* getcwd(char* buf,size_t size)
+把当前工作目录的绝对路径名复制到buf中，size表示buf的大小，
+如果buf不够大，则返回0
+注意：此函数返回的你执行程序时的目录，比如在根目录下执行/home/test/hello,
+实际返回的是根目录
+
+九.
+DIR* opendir(const char* pathname)
+--用opendir函数打开目录
+注意：该函数打开pathname指向的目录文件，如果错误返回NUll
+
+struct dirent* readdir(DIR* dir)
+--用readdir函数读出目录文件内容
+
+int closedir(DIR* dir)
+--用closedir函数关闭目录文件
+包含的头文件为：<dirent.h>
+
+例如：显示出一个目录下的所有文件
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <time.h>
+#include <dirent.h>
+void writelog(const char* log)
+{
+	time_t tData;
+	struct tm* eventTime;
+	time(&tData);
+	eventTime = localtime(&tData);
+	int iYear = eventTime->tm_year + 1900;
+	int iMon = eventTime->tm_mon + 1;
+	int iDay = eventTime->tm_mday;
+	int iHour = eventTime->tm_hour;
+	int iMin = eventTime->tm_min;
+	int iSec = eventTime->tm_sec;
+	char sData[32];
+	sprintf(sData, "%04d - %02d - %02d", iYear, iMon, iDay);
+	char sTime[32];
+	sprintf(sTime, "%02d : %02d : %02d", iHour, iMin, iSec);
+	char s[1024];	
+	sprintf(s, "%s %s %s\n", sData, sTime, log);
+	FILE* pf = fopen("my.log", "a+");
+	if (pf == NULL)
+		printf("write log mylog error:%s\n", strerror(errno));
+	else
+	{
+		fputs(s, pf);
+		fclose(pf);
+	}
+}
+int main(int arg,char* args[])
+{
+	if (arg < 2)
+		return 0;
+	DIR* dp;
+	struct dirent* dirp;
+	dp = opendir(args[1]);
+	if (dp == NULL)
+	{
+		printf("error is %s\n", strerror(errno));
+		return 0;
+	}
+
+	while ((dirp = readdir(dp)) != NULL)
+		printf("%s\n", dirp->d_name);
+	closedir(dp);
+	return 0;
+}

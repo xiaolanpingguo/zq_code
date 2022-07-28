@@ -1,0 +1,53 @@
+一.互斥(mutex)
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+int pthread_mutex_lock(pthread_mutex_t* mutex);
+int pthread_mutex_unlock(pthread_mutex_t*mutex)
+PTHREAD_MUTEX_INITIALZER;初始化一个快速锁的宏定义
+
+例如：
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <string.h>
+#include <errno.h>
+
+//用宏初始化了一个mutex锁
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+int count;
+void* func(void* arg)
+{
+	int* a = (int*)arg;
+	printf("thread%d start\n",*a);
+	int i;
+	for (i = 0; i < 10; ++i)
+	{
+		printf("thread%d is running\n", *a);	
+		
+		//给mutex上锁
+		pthread_mutex_lock(&mutex);
+		count ++;
+		//解锁
+		pthread_mutex_unlock(&mutex);
+		sleep(1);
+	}
+	printf("thread%d end\n", *a);
+	pthread_exit(NULL);
+}
+
+int main()
+{
+	printf("proccess start\n");
+	pthread_t thr_d1, thr_d2;
+	int i[2];
+	i[0] = 1;
+	i[1] = 2;
+	pthread_create(&thr_d1, NULL, func, &i[0]);
+	pthread_create(&thr_d2, NULL, func, &i[1]);
+	pthread_join(thr_d1, NULL);
+	pthread_join(thr_d2, NULL);
+	printf("proccess end\n");
+	return 0;
+}

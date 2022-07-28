@@ -1,0 +1,109 @@
+第一个shell脚本
+#! /bin/sh
+a=5
+b=5
+echo a=$a
+echo b=$b
+if (test "$a" = "$b") then
+        echo a=b
+else
+        echo a!=b
+fi
+
+//使用`符号执行一个命令的例子
+#! /bin/sh
+DATE=`date`
+echo "today is" $DATE
+
+//用户输入两个数字，计算两个数字的和
+#! /bin/sh
+read a
+echo 'a=' $a
+read b
+echo 'b=' $b
+c=`expr $a + $b`
+echo $c
+
+一个循环5次的例子
+#! /bin/sh
+times=0
+while [ "$times" != "5" ];
+do
+        echo $times
+        times=$[$times + 1]
+done
+
+
+//多重分支的例子
+#! /bin/sh
+case "$1" in
+start)
+        echo "is start"
+        ;;
+stop)
+        echo "is stop"
+        ;;
+*)
+        echo "is nothing"
+esac
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#libevent
+cd libevent
+chmod 755 configure
+./configure && make
+cp -r ./.libs/*.a ../../../lib/debug/      ??
+cp -r ./.libs/*.a ../../../lib/release/    ??
+cd ..
+
+#mongoclient
+cd mongoclient
+make && cp *.a ../../../lib/debug && cp *.a ../../../lib/release
+cd ..
+
+#protobuf
+cd protobuf
+chmod 755 configure
+./configure && make && cp ./src/.libs/libprotobuf.a ../../../lib/debug && cp ./src/.libs/libprotobuf.a ../../../lib/release
+cd ..
+
+
+#log4cplus
+cd log4cplus
+chmod 755 configure
+./configure CXXFLAGS=-std=c++11 CPPFLAGS=-std=c++11 && make && cp ./src/.libs/liblog4cplus.a ../../../lib/debug
+cd ..
+
+#lua
+#dep libreadline&&libncurses
+cd Lua
+make linux && cp ./src/liblua.a ../../../lib/debug && cp ./src/liblua.a ../../../lib/release
+cd ..
+
+#libiconv-1.14
+cd libiconv-1.14
+chmod 755 configure
+./configure && make && make install
+cd ..
+
+#RakNet
+cd RakNet
+cmake -f CMakeLists.txt
+make && make install
+cp ./Lib/LibStatic/libRakNetLibStatic.a ../../../lib/debug
+cd ..
+echo "finish RakNet"
+~                   
+

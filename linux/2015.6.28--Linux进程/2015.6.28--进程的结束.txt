@@ -1,0 +1,29 @@
+一.结束进程
+1.进程的结束可以有多种方式，比如：
+--main的return 
+--exit()
+--_exit()
+--abort()
+--被一个信号终止
+前三个都是正常终止，后面都是异常终止打
+
+2.kill函数
+#include <signal.h>
+#include <sys/types.h>
+int kill(pid_t pid,int sig)
+pid：要杀死的进程PID，要发送的信号，因为是要杀死进程，所有只需要传递一个SIGKILL即可
+例如：
+int main(int arg,char* args[])
+{
+	if(arg > 1)
+	{
+		int pid = atoi(args[1]);
+		kill(pid,SIGKILL);
+	}
+	else
+	{
+		printf("pid = %u\n",getpid();
+		sleep(60);
+	}
+}
+该程序做了两件事，一个是当没有输入的时候，获得当前进程的PID，而是输入一个进程名的时候，就结束它

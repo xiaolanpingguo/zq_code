@@ -1,0 +1,55 @@
+一.无名管道
+1.无名管道是半双工的，只能读，或者只能写
+2.无名管道只能在相关的，有共同祖先的进程间使用
+3.一个fork或者exec调用创建的子进程继承了父进程的文件描述符
+
+二.打开或关闭管道
+int pipe(int filedes[2])
+
+1.对管道进行读写，该管道必须存在
+2.如果成功建立了管道，则会打开两个文件描述符，并把他们的值保存在一个整数数组中
+3.第一个文件描述符用于读取数据，第二个描述符用于写入数据
+4.出错返回-1，同时设置errno
+5，close（）关闭管道
+
+例子如下：
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main(int arg, char* args[])
+{
+	//管道描述符，第一个代表读，第二个代表写
+	int fd[2];
+	char buf[100];
+	int len;
+
+	pipe(fd);
+	memset(buf, 0, sizeof(buf));
+	int pid = fork();
+
+	if (pid == 0)
+	{
+		//关闭第二个管道
+		close(fd[1]);
+		while ((len = read(fd[0], buf, sizeof(buf))) > 0)
+		{
+			write(STDOUT_FILENO, buf, len);
+		}
+		close(fd[0]);
+	}
+	else
+	{
+		//关闭第一个管道
+		close(fd[0]);
+		strcpy(buf, "hello world\n");
+		write(fd[1], buf, sizeof(buf));
+		close(fd[1]); 
+		//等待子进程退出
+		waitpid(pid, NULL, 0);
+	}
+	return 0;
+}

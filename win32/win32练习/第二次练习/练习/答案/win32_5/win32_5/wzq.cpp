@@ -1,0 +1,294 @@
+#include"wzq.h"
+#include"map.h"
+
+CWzq::CWzq()
+{
+	m_ipc = 0;
+}
+
+int CWzq::GetPc()
+{
+	return m_ipc;
+}
+void CWzq::SetPc(int pc)
+{
+	m_ipc = pc;
+}
+//void CWzq::SetCp(CMap * cp)
+//{
+//	m_cp = cp;
+//}
+//CMap* CWzq::GetCp()
+//{
+//	return m_cp;
+//}
+int CWzq::run(char* map,int x,int y)
+{
+		char* mp = map;
+		if(m_ipc%2==1)
+		{
+			int lt=0,t=0,rt=0;//左上，上，右上
+			int l=0,r=0;//左，右
+			int lb=0,b=0,rb=0;//左下，下，右下
+			int x1,y1;
+			//左上
+			x1=x-1;
+			y1=y-1;
+			while(x1>=0&&y1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					lt++;
+					x1--;
+					y1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//上
+			x1=x;
+			y1=y-1;
+			while(y1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					t++;
+					y1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//右上
+			x1=x+1;
+			y1=y-1;
+			while(x1<MAP_W&&y1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					rt++;
+					x1++;
+					y1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//左
+			x1=x-1;
+			y1=y;
+			while(x1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					l++;
+					x1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//右
+			x1=x+1;
+			y1=y;
+			while(x1<MAP_W)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					r++;
+					x1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//左下
+			x1=x-1;
+			y1=y+1;
+			while(x1>=0&&y1<MAP_H)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					lb++;
+					x1--;
+					y1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//下
+			x1=x;
+			y1=y+1;
+			while(y1<MAP_H)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					b++;
+					y1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//右下
+			x1=x+1;
+			y1=y+1;
+			while(x1<MAP_W&&y1<MAP_H)
+			{
+				if(mp[x1+y1*MAP_W]==_HQ)
+				{
+					rb++;
+					x1++;
+					y1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			if(lt+rb>=4||l+r>=4||t+b>=4||lb+rt>=4)
+				return 1;
+		}else
+		{
+			int lt=0,t=0,rt=0;//左上，上，右上
+			int l=0,r=0;//左，右
+			int lb=0,b=0,rb=0;//左下，下，右下
+			int x1,y1;
+			//左上
+			x1=x-1;
+			y1=y-1;
+			while(x1>=0&&y1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					lt++;
+					x1--;
+					y1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//上
+			x1=x;
+			y1=y-1;
+			while(y1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					t++;
+					y1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//右上
+			x1=x+1;
+			y1=y-1;
+			while(x1<MAP_W&&y1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					rt++;
+					x1++;
+					y1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//左
+			x1=x-1;
+			y1=y;
+			while(x1>=0)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					l++;
+					x1--;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//右
+			x1=x+1;
+			y1=y;
+			while(x1<MAP_W)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					r++;
+					x1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//左下
+			x1=x-1;
+			y1=y+1;
+			while(x1>=0&&y1<MAP_H)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					lb++;
+					x1--;
+					y1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//下
+			x1=x;
+			y1=y+1;
+			while(y1<MAP_H)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					b++;
+					y1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			//右下
+			x1=x+1;
+			y1=y+1;
+			while(x1<MAP_W&&y1<MAP_H)
+			{
+				if(mp[x1+y1*MAP_W]==_BQ)
+				{
+					rb++;
+					x1++;
+					y1++;
+					continue;
+				}else
+				{
+					break;
+				}
+			}
+			if(lt+rb>=4||l+r>=4||t+b>=4||lb+rt>=4)
+				return 2;
+		}
+	return 0;
+}

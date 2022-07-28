@@ -1,0 +1,78 @@
+十二.聚合
+1.常见的聚合操作跟sql server一样，有：count，distinct，group，mapReduce
+例如有三条记录：
+name:"jack",age:20
+name:"jiele",age:20
+name:"joe",age:22
+name:"mary",age:22
+name:"alice",age:22
+name:"zhangqi",age:26
+db.person.count()就可以得到该集合中有多少条记录，
+db.person.count({age:20})就可以得到该集合中年龄是20的有多少条记录，
+db.person.distinct("age")就可以得到该集合中所有出现的年龄
+
+2.group
+1）其实group操作本质上形成了一种“k-v”模型，下面的例子将对age进行group操作，
+key的话就是年龄，value对应age的姓名
+initial:每组都分享一个初始化函数，比如所有年龄为20的人都分享一个initial函数
+$reduce:整个函数第一个参数是当前的文档对象，第二个参数是上一次function操作的累计对象，第一次为initial中的{person:[]}。有多少个文档，$reduce就会调用多少次。多说无益，直接看例子：
+db.person.group({
+key:{age:true}, --如果是多个字段，可以为{"f1":true,"f2":true}
+initial:{person:[]},  --initial表示$reduce函数参数prev的初始值。每个组都有一份该初始值。
+$reduce:function(cur, prev)  --reduce函数接受两个参数，cur表示正在迭代的当前文档，prev表示				累加器文档
+{prev.person.push(cur.name);}
+})
+显示结果为：
+
+        {
+                "age" : 20,
+                "person" : [
+                        "a",
+                        "b"
+                ]
+        },
+        {
+                "age" : 23,
+                "person" : [
+                        "c"
+                ]
+        },
+        {
+                "age" : 24,
+                "person" : [
+                        "d",
+                        "d"
+                ]
+        }
+]
+
+2)现在我们改下需求，一，过滤掉age>25的人，二，加一个count属性标明一下一个组的数量，命令如下：
+db.person.group({
+key:{age:true}, --如果是多个字段，可以为{"f1":true,"f2":true}
+initial:{person:[]},  --initial表示$reduce函数参数prev的初始值。每个组都有一份该初始值。
+$reduce:function(cur, prev)  --reduce函数接受两个参数，cur表示正在迭代的当前文档，prev表示				累加器文档
+{prev.person.push(cur.name);},
+finalize:function(prev) --每一组文档执行完后，多会触发此方法，那么在每组集合里面加上count也				就是它的活
+{prev.count = prev.person.length;},
+condition:{age:{$it:25}} --过滤条件
+})
+
+
+
+十三.MongoDB的复制
+1.MongoDB 使用副本集达到复制。副本集是一组 mongod 实例，主机相同的数据集。副本中的一个节点，主节点接收所有的写操作。在所有其他情况下，次要节点，适用于从主操作，以使它们具有相同的数据集。副本集只能有一个主节点。
+
+1）副本集是一组中的两个或多个节点（一般至少3个节点是必需的）。
+2）在副本中设置一个节点是主节点和剩余节点都是次要的。
+3）从主要到次要节点的所有数据复制。
+4）自动故障转移或维修的时候，选初级建立，并选出新的主节点。
+5）失败的节点恢复后，再加入副本集和作品作为辅助节点。
+
+2.设置一个副本集
+mongod --port 27017 --dbpath "D:set upmongodbdata" --replSet rs0
+它会启动一个mongod 实例名称rs0 ，端口为27017。启动命令提示符 rs.initiate()，并连接到这个mongod实例。在mongod客户端执行命令rs.initiate()启动一个新的副本集。要检查副本集的配置执行命令rs.conf()。要检查的状态副本sete执行命令：rs.status()
+
+3.将成员添加到副本集
+假设mongod实例的名字是mongod1.net它运行端口为27017。这种情况下，到副本集执行的命令rs.add() 在mongod 客户端。
+>rs.add("mongod1.net:27017")
+可以添加mongod实例副本设置，只有当连接到主节点。要检查是否连接至初级或mongo 客户端不执行命令db.isMaster()。

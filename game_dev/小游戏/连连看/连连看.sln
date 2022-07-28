@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "连连看", "连连看\连连看.vcxproj", "{D1827B76-A464-4E54-AB16-F255353A011B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1827B76-A464-4E54-AB16-F255353A011B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D1827B76-A464-4E54-AB16-F255353A011B}.Debug|Win32.Build.0 = Debug|Win32
+		{D1827B76-A464-4E54-AB16-F255353A011B}.Release|Win32.ActiveCfg = Release|Win32
+		{D1827B76-A464-4E54-AB16-F255353A011B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,35 @@
+一.共享库so
+1.so文件类似windows的dll文件，so文件中的函数可供多个进程调用，当一个工程修改或添加了一些新特性后，用户只需要获得升级后的so并安装就可以。即使不同的进程调用同个SO文件，通过共享库并不能实现不同进程的通讯，因为同个SO被不同的进程加载到不同的内存空间中
+
+二.编译方法
+--SO文件的源文件不需要有main函数，即使有也不会被执行
+--编译的时候gcc需要加-fPIC选项，这可以使gcc产生与位置无关的代码
+--链接的时候gcc使用-shared选项，指示生成一个共享库文件
+--共享库文件名要以lib开头，扩展名为.so
+
+三.使用SO库
+1.包含相关头文件
+2.要让linux找到SO文件的位置，需要在用户的宿主目录的.bash_profile中添加：
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
+改后记得键入命令：. .profile生效
+或者将so文件放入系统目录/usr/lib/中
+3.gcc连接的时候添加 -L参数指明so文件存放路径，-l参数指明so文件名，例如：
+gcc -L. -ltest -o a a.o
+其中L.意思为在当前路径下寻找SO文件
+
+四.用g++方式编译so库
+为了让SO文件能同时被C或C++使用，我们需要修改一下H文件的函数声明部分，在函数前面增加：
+extern "c"，这样就告诉编译器这个函数是用C写的，你要用C编译方式去编译。
+但是这样有点麻烦，于是就可以下面这样：
+增加带有__cplusplus的预编译指令，这个指令是c++编译器预定义的一个宏，比如用g++的时候这个宏就被提前定义了
+例如：
+#ifdef __cpluscplus
+extern "C"
+{
+#endif
+
+int max(int a,int b)
+int add(int a,int b)
+#ifdef __cplusplus
+}
+#endif

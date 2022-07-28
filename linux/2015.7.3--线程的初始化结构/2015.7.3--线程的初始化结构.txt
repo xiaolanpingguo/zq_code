@@ -1,0 +1,12 @@
+一.
+1.相关函数
+int pthread_attr_init(pthread_attr_t *attr)
+--初始化attr结构
+
+2.int pthread_attr_destroy(pthread_attr_t *attr)
+--释放attr内存空间
+
+3.int pthread_att_setdetachstate(pthread_att_t* attr,int detachstate)
+--该函数把线程属性设置为下面两个合法值之一
+--PTHREAD_CREATE_DETACHED--设置线程为分离状态
+--PTHREAD_CREATE_JOINABLE--设置线程为正常状态

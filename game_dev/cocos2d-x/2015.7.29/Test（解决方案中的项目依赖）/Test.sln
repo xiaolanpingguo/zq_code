@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "makelib", "makelib\makelib.vcproj", "{F22D8F07-91C4-4DA3-8F72-0FA16219241C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "uselib", "uselib\uselib.vcproj", "{7001D210-D169-45F2-B744-2D547873EAE5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F22D8F07-91C4-4DA3-8F72-0FA16219241C} = {F22D8F07-91C4-4DA3-8F72-0FA16219241C}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F22D8F07-91C4-4DA3-8F72-0FA16219241C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F22D8F07-91C4-4DA3-8F72-0FA16219241C}.Debug|Win32.Build.0 = Debug|Win32
+		{F22D8F07-91C4-4DA3-8F72-0FA16219241C}.Release|Win32.ActiveCfg = Release|Win32
+		{F22D8F07-91C4-4DA3-8F72-0FA16219241C}.Release|Win32.Build.0 = Release|Win32
+		{7001D210-D169-45F2-B744-2D547873EAE5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7001D210-D169-45F2-B744-2D547873EAE5}.Debug|Win32.Build.0 = Debug|Win32
+		{7001D210-D169-45F2-B744-2D547873EAE5}.Release|Win32.ActiveCfg = Release|Win32
+		{7001D210-D169-45F2-B744-2D547873EAE5}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

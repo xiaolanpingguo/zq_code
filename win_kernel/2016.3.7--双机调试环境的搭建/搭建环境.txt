@@ -1,0 +1,35 @@
+一:
+	1.首先确定开发环境已经搭建成功。
+	2.安装wmware，系统为WIN7 X64,
+	3.系统安装完过后，禁用UAC，方便以后测试驱动
+	4.安装wmware Tools
+	5.安装.net framwork(win7 x64及以上系统不用安装)
+	
+二.
+	1.按上面的要求把虚拟机的工作做好之后，就开始搭建双机调试环境
+	2.先下载VirtualKD这个工具(http://virtualkd.sysprogs.org),这个工具
+		是方便调试的一个工具，省去手动设置的方便
+	3.在真机安装VirtualKD，运行 VMMON64.exe，设置调试器路径。点击 VMMON 界面下面的『Debugger path』
+		按钮，选择 WINDBG 路径。一般路径是：C:\WinDDK\7600.16385.1\Debuggers\windbg.exe
+	4.在真机里把 VirtualKD安装路径下的 target 文件夹拖到虚拟机，以管理员权限运行vminstall.exe
+		然后点install安装
+	5.重启虚拟机，在开机画面点击：windows7(VirtalKD)选项
+	6.进入不久后，在真机中，windbg会自动启动，然后就会出现windgb的调试界面
+	7.这个时候先不急着调试，先在真机安装符号包。WINDOWS 系统符号的官方下载地址是：
+		http://msdn.microsoft.com/en-us/windows/hardware/gg463028.aspx， 因为我们要调试的
+		目标系统是 WIN7X64，所以去页面上选择『Windows 7 RTM x64 retail symbols, all
+		languages』或『Windows 7 Service Pack 1 x64 retail symbols, all languages』下载
+		（根据你安装了 WIN7X64SP1 还是 WIN7X64RTM）。下载完毕后安装。 安装过程就是一路 NEXT，
+		记得在安装过程中选择 把符号安装到  c:\\symbols ，否则会影响后面的符号加载
+	8.设 置 WINDBG 的 符 号 。点 击 File->Symbol  File  Path ，输 入
+		【SRV*C:\Symbols*http://msdl.microsoft.com/download/symbols】，再按下确定即可 若
+		在按下确定前，勾选一下Reload复选框，WINDBG则会自动重载符号。
+	9.让 WINDBG 重载符号。 在 WINDBG 的命令行上输入.reload 即可（注意reload前面有个点） 
+	10.测试 WINDBG 是否加载符号成功。 输入 u KiInsertQueueApc， 如果出现类似一片汇编指令的结果
+		就证明整个调试环境已经搭建好了
+		
+三.进行本地内核调试
+	1.开启 CMD，输入 bcdedit –debug on
+	2.重启计算机。
+	3.打开 WINDBG，按下 Ctrl+K，选择 Local，按下确定
+	4.设置调试符号路径（参照前面的方法） 

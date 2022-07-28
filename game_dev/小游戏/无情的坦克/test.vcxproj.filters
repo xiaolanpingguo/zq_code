@@ -1,0 +1,421 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="游戏">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="游戏\逻辑">
+      <UniqueIdentifier>{661da480-aaef-4877-8e5c-00d51da7af9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\玩家">
+      <UniqueIdentifier>{d82117e6-1c0a-4b52-abae-c5848e00dd0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\敌人">
+      <UniqueIdentifier>{6e6e4b9d-e377-4e13-9d07-60678cbcead4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\敌人\白小鬼">
+      <UniqueIdentifier>{b28c409b-2e19-441a-9881-a7adff90c5c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\敌人\白小花">
+      <UniqueIdentifier>{d630b7cf-297f-4129-8673-8063e9a67c72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\敌人\黑小鬼">
+      <UniqueIdentifier>{71c66d7c-1eed-439d-8230-7ebde0f54a3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\敌人\蓝小鬼">
+      <UniqueIdentifier>{a143008e-cd80-4c18-895b-5d3e45854767}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\子弹">
+      <UniqueIdentifier>{53800243-5f30-4363-bf92-54bcf9251fe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\子弹\玩家1子弹">
+      <UniqueIdentifier>{222754cb-a47c-4fb7-9d38-f9e90b7a8f69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\子弹\白小鬼子弹">
+      <UniqueIdentifier>{9958225e-b409-4dd7-b522-1d83361a3f59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\子弹\黑小鬼子弹">
+      <UniqueIdentifier>{f9f27907-3d45-4c53-8b6f-a21c915ffc94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\子弹\蓝小鬼子弹">
+      <UniqueIdentifier>{bd46b93b-c3c5-4838-84f5-2c18a15b4d13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\子弹\白小花子弹">
+      <UniqueIdentifier>{1ed07d51-1b3e-4598-9737-d7519b0067a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\爆炸">
+      <UniqueIdentifier>{1916ba12-c8f8-4e9d-a5db-d0b1f38daf40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\爆炸\玩家子弹碰到障碍">
+      <UniqueIdentifier>{80bcc0c0-090e-488c-8b5d-adbb99ffadcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\爆炸\玩家子弹碰到敌人">
+      <UniqueIdentifier>{9facf79d-9c93-4e99-979a-0724397ae32d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\爆炸\敌人子弹碰到障碍">
+      <UniqueIdentifier>{736c2b96-7034-4395-9892-f624c40d4007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\爆炸\敌人子弹碰到玩家">
+      <UniqueIdentifier>{a099e51e-d77e-4b6c-967d-ae05ada9424e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\道具">
+      <UniqueIdentifier>{f5dbf9cd-063f-447c-8700-5fbb75563dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\道具\红蘑菇（加血量）">
+      <UniqueIdentifier>{195460e4-6977-47dd-b522-f51c1e1103a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\道具\浅绿蘑菇（加攻击）">
+      <UniqueIdentifier>{a8b5dcf1-df13-47f2-8d11-f7b4c914adb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\逻辑\道具\深绿蘑菇（加防御）">
+      <UniqueIdentifier>{d0e9076d-c12d-4cbc-b974-be8ab2c12ee6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\场景">
+      <UniqueIdentifier>{a0c69079-9dd7-4951-aa10-8a0ab4f64177}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\场景\游戏开始界面">
+      <UniqueIdentifier>{c3aec749-92ab-430c-8a8a-d6c1a474947f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\场景\游戏运行界面">
+      <UniqueIdentifier>{478afb8a-e597-4d1e-826d-71fc839d98f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\场景\游戏运行界面\关卡1">
+      <UniqueIdentifier>{199080dc-18be-4bb6-b95a-5d90634ea0c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\场景\游戏运行界面\关卡2">
+      <UniqueIdentifier>{b5657dc9-0ee7-4439-b021-a05304cf4e6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="游戏\场景\界面logo">
+      <UniqueIdentifier>{175456aa-6bcd-48e7-a772-6d60b059c098}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="入口">
+      <UniqueIdentifier>{564d6441-24e8-4a67-9108-774a3d8801c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎">
+      <UniqueIdentifier>{8fd6b913-dbbe-4e07-ad81-46381cb573d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景">
+      <UniqueIdentifier>{9dcac56c-b5ff-4fe6-9580-3654ca9ff18f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\控件">
+      <UniqueIdentifier>{82327bb6-0235-4b2b-9896-ea95bdf43ea9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\控件\具体控件">
+      <UniqueIdentifier>{5882948e-5139-4f10-850f-f2d207fc0429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\切换">
+      <UniqueIdentifier>{7657a427-2da1-4850-a20c-386e1ca9319c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\切换\具体切换">
+      <UniqueIdentifier>{72b0c45d-fc62-4972-a1ef-1833f90f77d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具">
+      <UniqueIdentifier>{1c639742-3792-4889-bf79-6be07f65a4b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\输入">
+      <UniqueIdentifier>{c6049b4a-f28e-4b33-91a1-5d98dd20852f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\输出">
+      <UniqueIdentifier>{9a94652d-369c-4ba1-9cc3-b7ba1888ad91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\文件">
+      <UniqueIdentifier>{3ffb1c2d-629f-494c-97fb-7cfe87351d08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\音乐">
+      <UniqueIdentifier>{6b183100-826a-456e-8e96-6aebf560ce24}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameLogic.cpp">
+      <Filter>游戏\逻辑</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>游戏\逻辑\玩家</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>游戏\逻辑\敌人</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_BaiXiaoGui.cpp">
+      <Filter>游戏\逻辑\敌人\白小鬼</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_BaiXiaoHua.cpp">
+      <Filter>游戏\逻辑\敌人\白小花</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_HeiXiaoGui.cpp">
+      <Filter>游戏\逻辑\敌人\黑小鬼</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy_LanXiaoGui.cpp">
+      <Filter>游戏\逻辑\敌人\蓝小鬼</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>游戏\逻辑\子弹</Filter>
+    </ClCompile>
+    <ClCompile Include="Player1Bullet.cpp">
+      <Filter>游戏\逻辑\子弹\玩家1子弹</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet_BaiXiaoGui.cpp">
+      <Filter>游戏\逻辑\子弹\白小鬼子弹</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet_HeiXiaoGui.cpp">
+      <Filter>游戏\逻辑\子弹\黑小鬼子弹</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet_LanXiaoGui.cpp">
+      <Filter>游戏\逻辑\子弹\蓝小鬼子弹</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet_BaiXiaoHua.cpp">
+      <Filter>游戏\逻辑\子弹\白小花子弹</Filter>
+    </ClCompile>
+    <ClCompile Include="Boom.cpp">
+      <Filter>游戏\逻辑\爆炸</Filter>
+    </ClCompile>
+    <ClCompile Include="Boom_Player_ZhangAi.cpp">
+      <Filter>游戏\逻辑\爆炸\玩家子弹碰到障碍</Filter>
+    </ClCompile>
+    <ClCompile Include="Boom_Player_Enemy.cpp">
+      <Filter>游戏\逻辑\爆炸\玩家子弹碰到敌人</Filter>
+    </ClCompile>
+    <ClCompile Include="Boom_Enemy_ZhangAi.cpp">
+      <Filter>游戏\逻辑\爆炸\敌人子弹碰到障碍</Filter>
+    </ClCompile>
+    <ClCompile Include="Boom_Enemy_Player.cpp">
+      <Filter>游戏\逻辑\爆炸\敌人子弹碰到玩家</Filter>
+    </ClCompile>
+    <ClCompile Include="Items.cpp">
+      <Filter>游戏\逻辑\道具</Filter>
+    </ClCompile>
+    <ClCompile Include="Items_HongMoGu.cpp">
+      <Filter>游戏\逻辑\道具\红蘑菇（加血量）</Filter>
+    </ClCompile>
+    <ClCompile Include="Items_QianLvMoGu.cpp">
+      <Filter>游戏\逻辑\道具\浅绿蘑菇（加攻击）</Filter>
+    </ClCompile>
+    <ClCompile Include="Items_ShenLvMoGu.cpp">
+      <Filter>游戏\逻辑\道具\深绿蘑菇（加防御）</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGameBegin.cpp">
+      <Filter>游戏\场景\游戏开始界面</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGameStage1.cpp">
+      <Filter>游戏\场景\游戏运行界面\关卡1</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGameStage2.cpp">
+      <Filter>游戏\场景\游戏运行界面\关卡2</Filter>
+    </ClCompile>
+    <ClCompile Include="GameLogo.cpp">
+      <Filter>游戏\场景\界面logo</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>入口</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine.cpp">
+      <Filter>引擎</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>引擎\场景</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>引擎\场景\控件</Filter>
+    </ClCompile>
+    <ClCompile Include="BmpButtonUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="EditUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneChange.cpp">
+      <Filter>引擎\场景\切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter1.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter2.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter3.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter4.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit1.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit2.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit3.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit4.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInput.cpp">
+      <Filter>引擎\工具\输入</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOutput.cpp">
+      <Filter>引擎\工具\输出</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadFile.cpp">
+      <Filter>引擎\工具\文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WriteFile.cpp">
+      <Filter>引擎\工具\文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioManager.cpp">
+      <Filter>引擎\工具\音乐</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameLogic.h">
+      <Filter>游戏\逻辑</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>游戏\逻辑\玩家</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>游戏\逻辑\敌人</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_BaiXiaoGui.h">
+      <Filter>游戏\逻辑\敌人\白小鬼</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_BaiXiaoHua.h">
+      <Filter>游戏\逻辑\敌人\白小花</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_HeiXiaoGui.h">
+      <Filter>游戏\逻辑\敌人\黑小鬼</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy_LanXiaoGui.h">
+      <Filter>游戏\逻辑\敌人\蓝小鬼</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>游戏\逻辑\子弹</Filter>
+    </ClInclude>
+    <ClInclude Include="Player1Bullet.h">
+      <Filter>游戏\逻辑\子弹\玩家1子弹</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet_BaiXiaoGui.h">
+      <Filter>游戏\逻辑\子弹\白小鬼子弹</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet_HeiXiaoGui.h">
+      <Filter>游戏\逻辑\子弹\黑小鬼子弹</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet_LanXiaoGui.h">
+      <Filter>游戏\逻辑\子弹\蓝小鬼子弹</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet_BaiXiaoHua.h">
+      <Filter>游戏\逻辑\子弹\白小花子弹</Filter>
+    </ClInclude>
+    <ClInclude Include="Boom.h">
+      <Filter>游戏\逻辑\爆炸</Filter>
+    </ClInclude>
+    <ClInclude Include="Boom_Player_ZhangAi.h">
+      <Filter>游戏\逻辑\爆炸\玩家子弹碰到障碍</Filter>
+    </ClInclude>
+    <ClInclude Include="Boom_Player_Enemy.h">
+      <Filter>游戏\逻辑\爆炸\玩家子弹碰到敌人</Filter>
+    </ClInclude>
+    <ClInclude Include="Boom_Enemy_ZhangAi.h">
+      <Filter>游戏\逻辑\爆炸\敌人子弹碰到障碍</Filter>
+    </ClInclude>
+    <ClInclude Include="Boom_Enemy_Player.h">
+      <Filter>游戏\逻辑\爆炸\敌人子弹碰到玩家</Filter>
+    </ClInclude>
+    <ClInclude Include="Items.h">
+      <Filter>游戏\逻辑\道具</Filter>
+    </ClInclude>
+    <ClInclude Include="Items_HongMoGu.h">
+      <Filter>游戏\逻辑\道具\红蘑菇（加血量）</Filter>
+    </ClInclude>
+    <ClInclude Include="Items_QianLvMoGu.h">
+      <Filter>游戏\逻辑\道具\浅绿蘑菇（加攻击）</Filter>
+    </ClInclude>
+    <ClInclude Include="Items_ShenLvMoGu.h">
+      <Filter>游戏\逻辑\道具\深绿蘑菇（加防御）</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGameBegin.h">
+      <Filter>游戏\场景\游戏开始界面</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGameStage1.h">
+      <Filter>游戏\场景\游戏运行界面\关卡1</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGameStage2.h">
+      <Filter>游戏\场景\游戏运行界面\关卡2</Filter>
+    </ClInclude>
+    <ClInclude Include="GameLogo.h">
+      <Filter>游戏\场景\界面logo</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine.h">
+      <Filter>引擎</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>引擎\场景</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>引擎\场景\控件</Filter>
+    </ClInclude>
+    <ClInclude Include="BmpButtonUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="EditUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneChange.h">
+      <Filter>引擎\场景\切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter1.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter2.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter3.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter4.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit1.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit2.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit3.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit4.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInput.h">
+      <Filter>引擎\工具\输入</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOutput.h">
+      <Filter>引擎\工具\输出</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadFile.h">
+      <Filter>引擎\工具\文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WriteFile.h">
+      <Filter>引擎\工具\文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioManager.h">
+      <Filter>引擎\工具\音乐</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod.h">
+      <Filter>引擎\工具\音乐</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

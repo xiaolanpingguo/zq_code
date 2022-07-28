@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "鼠标移动轨迹", "非模式对话框.vcproj", "{D26643E9-2632-4C08-ADF6-B7A6D37BB88F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D26643E9-2632-4C08-ADF6-B7A6D37BB88F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D26643E9-2632-4C08-ADF6-B7A6D37BB88F}.Debug|Win32.Build.0 = Debug|Win32
+		{D26643E9-2632-4C08-ADF6-B7A6D37BB88F}.Release|Win32.ActiveCfg = Release|Win32
+		{D26643E9-2632-4C08-ADF6-B7A6D37BB88F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

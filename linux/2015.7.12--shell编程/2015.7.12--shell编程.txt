@@ -1,0 +1,116 @@
+一。
+1.
+--”#“开头表示注释
+
+2.
+--字符串前面加”$"代表是一个变量，如果”$"后面是数字，代表第几个参数，$1代表第一个参数，$2代表第二个参数，$0代表命令本身，下面是详细命令，
+--$i:代表第I个参数
+--$#：代表参数个数
+--$*：代表所有参数
+--$?：上一个命令的返回值
+
+二.shift语句
+1.
+--$i只能提供0到9这10个参数，超过10个则可以使用shift能使引用数移位，如此就可以将引用过的引数移掉，把位置留给下个引数
+例如：
+echo $# $*
+shift
+echo $# $*
+
+三."` `"命令
+--以“` `”符号包含的内容不是字符串，而是代表一个shell命令，例如：
+--echo "today is" `data`
+前面是字符，后面的data表示执行这个data命令，而PDATA=`data`代表定义一个变量PDATA，将data执行完成输出的结果放入到这个变量中  
+
+
+四.“expr"
+--该语法是用来取计算的结果的，例如：
+a=9
+b=10
+var1=$a+$b
+echo $var1
+输出为："9+10
+改成：
+var1=`expr $a + $b`就行了
+
+也可以用命令，比如写好这个shell文件后，用expr 4 + 6 就可以输出10了
+
+
+五.read命令
+--从终端或文件读取输入
+--读取一个输入行，直遇到换行符
+--行尾的换行符在读入时被转换成一个空字符
+--如果该命令后有变量名，输入内容赋给该变量，
+如果read命令后未跟变量名，读入的行将被赋值给内置变量的reply
+
+六.
+1.第一种if语句
+if (test condition) then
+conmands
+else
+commands
+fi
+
+注意：test是一个固定关键字，用来判断condition的描述是否正确，正确继续执行下面语句
+错误执行else的语句
+
+2.第二种if语句
+if [-option expr] ;then
+conmands
+else
+commands
+fi
+
+注意：不同的条件代表不同的判断方式，例如if [-r file];,"[""]"里面都要加上空格，"]"后面要加";"号
+
+-option说明：
+-d file:文件存在并且是个目录
+-e file:文件存在
+-r file:文件存在并且可读
+-w file:文件存在并且可写
+-x file:文件存在并且可执行
+-f file:文件是否存在
+
+七.while语句
+while [expr]
+do
+   commands
+done
+
+八.case语句
+case "string" in
+pattern_1)
+   commands
+;;
+pattern_2)
+   commands
+;;
+*)
+   commands
+;;
+esac
+--当条件语句的string等于patern字符串时执行pattern下面的命令
+--当没有符合条件时，最后执行*)
+
+九.for语句
+for varname in list;
+do 
+   commands
+done
+--list可以是一个字符串或数字
+--for每执行一次循环就将varname指定为list中的一个值，直到List这个数组结束
+
+十.exit
+exit code
+--类似c语言的exit
+
+十一.
+:
+--空语句
+
+十二.函数
+function funname
+{  
+   commands
+}
+注意：使用函数前必须先定义函数

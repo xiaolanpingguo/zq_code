@@ -1,0 +1,134 @@
+一.信号
+常见信号：
+SIGABRT:调用abort产生此信号，进程异常终止
+SIGALRM:调用alarm设置计时器超时时，产生此信号
+SIGHLD:一个进程终止时发送该信号给其父进程
+SIGFPE:表示一个算数运算异常，比如除以0
+SIGINT:用户按下Ctrl+c产生此信号
+SIGKILL:不能被捕获或忽略的信号，kill 9 发送信号
+SIGPIPE:如果在写管道是读进程已终止，产生信号
+SIGSEGV:表示进程进行了一次无效的内存引用
+SIGTERM:kill命令（1）发送的系统默认终止信号
+SIGTSTP:用户按下Ctrl+z产生此信号，不能被忽略或捕
+SIGUSR1:用户定义信号，可用于应用程序
+SIGUSR2:用户定义信号，可用于应用程序
+
+二.捕获信号
+1.signal函数：
+--u/l平台处理信号最常用的接口就是signal函数，例如在命令行使用kill命令，向指定进程发送信号，
+#include <signal.h>
+void signal (int signal,void (*func)(int))
+signal:信号名
+func:接到此信号要调用的函数。
+该函数有个Int类型的参数，代表捕获到的信号值
+
+2.当进程捕获到信号时，进程就会临时被中断，转而执行那个回调函数，如果信号处理程序返回（没有调用exit或abort，则继续执行原进程
+
+例如：
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+
+void catch_signal(int sign)
+{
+	switch (sign)
+	{
+	case SIGINT:printf("SIGINT signal\n"); 
+	break;
+	}
+}
+
+
+int main(int arg, char* args[])
+{
+	signal(SIGINT, catch_signal);
+	int i = 0;
+	while (1)
+	{
+		sleep(100);
+		printf("hello%d\n",++i);
+		sleep(1);
+	}
+	return 0;
+}
+代码可以看到，就算sleep要等待100秒，但是一旦信号来临，它也会返回。
+此时用ctrl+c已经没有用了，只有杀死进程，如果要用
+ctrl+c结束掉它，可以在代码加上exit即可
+
+三.发送信号
+1.在命令行使用kill命令向指定进程发送信号或使用kill函数
+#include <signal.h>
+#include <sys/types.h>
+int kill(pid_t pid, int sig)
+pid:指定一个进程的PID
+sig:发送的信号
+这样结合刚才的程序，就可以达到进程间的通信，
+例如：上面的进程的PID是9999，调用kill(9999,SIGINT)就可以给那个进程发送SIGINT信号
+
+2.raise函数
+#include <signal.h>
+int raise(int signo);
+--kill函数时将信号发送给进程，raise函数允许进程向自身发送信号
+--raise（signo)等价于kill(getpid(),signo)
+
+3.alarm函数
+--该设置了一个定时器，当定时器到了就发送SIGNAL信号
+#include <unistd.h>
+unsigned int alarm(unsigned int seconds)
+seconds:计时器时间到后时钟的秒数
+--如果没有设置其他超时，返回0，否则返回前面安排超时中保留的秒数
+--一个进程只能设置一次超时
+--seconds设置为0可以取消前面的超时设置
+例如：
+alarm（5），代表每到5秒就发送一个SIGALRM信号
+
+注意：如果你才程序中忘记注册SIGALRM信号了，例如忘记写这句代码了：signal(SIGALRM,catch_signal)
+当设置时间一到，程序就会退出了，同SIGPIPE信号，它们默认的行为都是退出程序（前提是进程中没有注册这两个信号）
+
+四.其他信号
+--作业控制信号--
+--SIGCHID:子进程已停止或终止
+--SIGCONT:如果进程已经停止，使其继续运行
+--SIGSTOP:停止信号，不能被捕捉或者忽略
+--SIGTTIN:后台进程组成员读控制终端
+--SIGTTOU:后台进程组成员写控制终端
+
+注意：除SIGCHID以外，大多数程序并不处理这些信号
+--shell程序一般需要处理这些信号
+
+五.sigaction--改进的信号捕获机制
+--该函数的功能是检查或修改与指定信号关联的处理动作，取代了signal函数
+
+#include <signal.h>
+int sigaction(int signo,const struct sigaction *act ,struct sigaction *oldact)
+成功返回0，失败返回-1
+--signo:要检测或者修改其具体动作的信号编号（或同时执行这两种动作）
+--如果act指针非空，则要修改其动作
+--如果oldact指针非空，则系统由oldact指针返回该信号的上一个动作
+
+其中 struct sigaction
+{
+	void (*sa_handler)(int);
+	void (*sa_sigaction)	(int,siginfo_t*,void*);
+ 	sigset_t sa_mask;
+	int sa_flags;
+	void (*sa_restorer)(void);
+}
+
+例如：把signal函数封装了一下：
+int signal1(int signo,void (*func)(int))
+{
+	//定义两个sigaction 结构指针
+	struct sigaction act,oact;
+	//指向了回调函数
+	act.sa_handler = func;
+	//用这个函数把该值清空
+	sigemptyset(&act.sa_mask);
+	//初始化这个结构
+	act.sa_flags = 0;
+	//返回之前的状态
+	return sigaction(signo,&act,&oact);
+}

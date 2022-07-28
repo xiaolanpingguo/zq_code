@@ -1,0 +1,141 @@
+第一:安装mysql；
+第二：sudo apt-get install libmysqlclient15 -dev 
+
+一.
+1.
+创建新数据库：
+--CREATE DATABASE [IF NOT EXISTS] db_name
+[CHARACTER SET charset_name]
+
+2.使用数据库
+--USE db_name
+
+3.删除数据库
+--DROP DATABASE db_name
+
+4.显示有哪些数据库
+--show databases;
+
+5.设置客户端连接字符集
+--SET NAMES utf8;(同时CRT要设置UTF8）
+注意：每次登陆都要设置
+
+6.建立表
+建立普通表：
+--CREATE TABLE TABLENAME(COL_NAME1 TYPE,COL_NAME2 TYPE,....);
+例如：建立一张学生表
+CREARE TABLE table1 (name varchar(100), sex varchar(10), age int, class varchar(100));
+
+建立带有组件的表：
+例如：
+CREARE TABLE table2 (ID int(11) NOT NULL auto_increment, name varchar(100), age int, PRIMARY KEY(ID));
+
+常用TYPE说明：
+--INT：整数
+--CHAR（LENGTH):定长字符串，短于指定长度用空格填充
+--VARCHAR(LENGTH):变长字符串
+
+7.显示哪些表
+--show tables;
+
+8.删除表
+--DROP TABLE TABLENAME;
+
+9.看表的结构
+--desc table;
+
+10.选择哪个数据库
+--use dbname;
+
+11.插入语句
+--INSERT INTO TABLENAME(COL1,COL2,..) VALUES(VAL1,VAL2,...);,插入数据，前面指定列名，后面是要插入的值
+例如：
+INSERT INTO tabale1 (name, sex, age, class) VALUES ('张三', '男', 20, '一班');
+
+12.查询语句
+--select [option] FROM tablename;
+例如：
+SELECT * FROM table1;，从table1里面查询所有数据
+
+13.执行一个脚本
+--比如一个文件里面有很多SQL语句，要全部执行的话就输入下面命令：
+source 文件名;
+
+14.返回指定行数的查询语句
+--SELECT * FROM TABLENAME LINIT m, n
+其中m是指记录开始的index，从0开始，表示第一条记录，n是指从第m+1条开始，取n条，例如：
+SELECT * FROM table1 LIMIT 0,5
+
+15.查询指定数据
+例如：查询年龄大于21的：
+SELECT * FROM table1 WHERE age > 21;
+
+例如：查询班级是“1班”的：
+SELECT * FROM table1 WHERE class = '一班';
+
+例如：查询班级是“1班”而且年龄大于21的：
+SELECT * FROM table1 WHERE class = '一班' AND age > 22;
+
+例如：查询班级是“1班”或者是“野人班的”：
+SELECT * FROM table1 WHERE class = '一班' OR class = '野人班';
+
+例如：查询姓王的同学：
+SELECT * FROM table1 WHERE name LIKE '王%';
+
+16.带有条件的查询语句
+SELECT COL1,COL2...FROM TABLENAME WHERE CONDITIONAL;
+
+17.逻辑IN的使用
+--查询年龄20,25,40的
+SELECT * FROM table1 WHERE age in(25, 20, 40);
+
+18.逻辑IN的使用
+--查询年龄不是20,25,40的
+SELECT * FROM table1 WHERE age not in(25, 20, 40);
+
+19.年龄不等于20的
+SELECT * FROM table1 WHERE age <> 20;
+SELECT * FROM table1 WHERE age not in 20;
+
+20.不姓王的
+SELECT * FROM table1 WHERE name not LIKE '王%';
+
+21.LIKE匹配
+SELECT * FROM table1 WHERE name  LIKE '王%';
+--匹配前边：姓王的
+
+SELECT * FROM table1 WHERE name  LIKE '%王%';
+--两边都匹配：有王的都可以
+
+SELECT * FROM table1 WHERE name  LIKE '%王';
+--后边匹配：名有王的都可以
+
+20.给一个列起别名
+--select name 姓名, sex 性别, age 年龄 from table1;
+注意：不是真正把列名字改了，只是把查询名字改了
+
+20.给一个表起别名
+--select a.name, a.sex, a.age from table1 a;
+注意：给这个table1起了一个名字叫a，不是真正把表名字改了，只是把查询名字改了
+
+--WHERE语句后面是条件
+AND:与
+NOT:非
+OR:或
+=:等于
+LIKE:通过"%"通配符匹配指定模式
+IN:包含子集
+<>:不等于
+<:小于
+<=:小于等于
+>:大于
+>=:大于等于
+
+
+
+二.为数据库创建新用户
+--USE mysql
+--GRANT ALL ON db_name.* TO user_name
+   IDENTIFIED BY 'password';
+
+

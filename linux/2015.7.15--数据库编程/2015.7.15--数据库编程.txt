@@ -1,0 +1,38 @@
+一.头文件和makefile文件
+include <mysql/mysql.h>
+makefile文件在链接的时候要添加 -lmysqlclient选项（意思要链接到libmysqlclient.so这个库文件）
+
+
+二.初始化
+--mysql_init(MYSQL* pmysql)
+--连接mysql必须调用mysql_init初始化
+--之后调用mysql_real_connect连接到数据库
+--mysql-real-connect成功返回执行mysql连接的指针，失败返回NULL
+
+
+三.执行SQL语句
+int mysql_query(MYSQL *pmysql, const char* sql)
+pmysql:连接到Mysql的指针
+sql:执行的sql的语句
+函数成功返回0，失败返回非0
+
+
+四.执行select语句得到查询结果
+MYSQL_RES *mysql_store_result(MYSQL *pmysql1)
+--成功返回一个查询的指针，查询无结果或者错误返回Null
+
+当成功后，结果会储存到那个返回结果的指针里，所以要查看查询结果需要用到下面这个函数：
+例如：MYSQL_ROW row = mysql_fetch_row(result)
+while(1)
+{
+   row = mysql_fetch_row(result);
+   if(row == NULL)
+	break;
+   printf("name = %s,sex = %s,age = %s,class = %s\n",(const char*)row[0],(const char*)row[1],
+(const char*)row[2],
+(const char*)row[3],
+}
+就可以全部打印出来了
+
+mysql_free_result(MYSQL_RES *res)
+--调用完mysql_store_result,一定要用mysql_free_result释放相关资源

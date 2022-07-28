@@ -1,0 +1,11 @@
+1. 采用的是win10+VS2015，所以首先要先安装上述两个
+2. 安装完成后，开始下载安装WDK（Windows Driver Kit）驱动程序开发系统，
+   下载地址：https://msdn.microsoft.com/zh-cn/windows/hardware/dn913721.aspx
+   下载完成后，一路next就行了
+3.接下来打开VS2015，就可以在新建项目的界面看到windows driver的选项了，选择
+	User Mode Driver(UMDF V2),新建好后，开始编译，此时会报一个错误：
+	An SDK corresponding to WDK version '8.1' was not found. Please install the SDK before building.
+	报这个的原因是没有安装windows10 SDK，接下来安装WIN10 SDK，下载地址：
+	https://dev.windows.com/en-us/downloads/windows-10-sdk
+	安装完成后，此时编译就可以通过了
+	

@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="游戏">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="游戏\逻辑">
+      <UniqueIdentifier>{d5cc448c-75ea-45ac-875e-472a2d8c55ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="入口">
+      <UniqueIdentifier>{068af613-be69-4052-9af3-a6195fc444fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎">
+      <UniqueIdentifier>{fb70a48e-3c01-45d3-94a4-a3e9d34677c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景">
+      <UniqueIdentifier>{c9eece5a-b469-4878-924a-19cc88488ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\控件">
+      <UniqueIdentifier>{db404e53-5e91-461f-818c-35482c45d03f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\控件\具体控件">
+      <UniqueIdentifier>{81650512-9f60-4576-b90d-176b117ecb18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\切换">
+      <UniqueIdentifier>{0e76f64d-b300-4d0b-a3a4-a272f71fa381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\场景\切换\具体切换">
+      <UniqueIdentifier>{501c8984-30f1-4576-90af-c9ae6d987fbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具">
+      <UniqueIdentifier>{ac64fab5-763a-4625-9b68-82a66980bb2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\输入">
+      <UniqueIdentifier>{0b0eb5f3-b8f2-4582-8963-b081f3f4e088}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\输出">
+      <UniqueIdentifier>{0906a3e2-c6ad-4007-9afe-c0d9f749a61e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\文件">
+      <UniqueIdentifier>{719f6fdd-81c4-41ca-9e91-b77e7cbd18b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="引擎\工具\音乐">
+      <UniqueIdentifier>{73c18634-e0ba-48c1-b4d7-b77f548d4021}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="1.cpp">
+      <Filter>游戏</Filter>
+    </ClCompile>
+    <ClCompile Include="2.cpp">
+      <Filter>游戏</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>入口</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine.cpp">
+      <Filter>引擎</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>引擎\场景</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>引擎\场景\控件</Filter>
+    </ClCompile>
+    <ClCompile Include="BmpButtonUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="EditUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectUI.cpp">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneChange.cpp">
+      <Filter>引擎\场景\切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter1.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter2.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter3.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Enter4.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit1.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit2.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit3.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="Quit4.cpp">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInput.cpp">
+      <Filter>引擎\工具\输入</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOutput.cpp">
+      <Filter>引擎\工具\输出</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadFile.cpp">
+      <Filter>引擎\工具\文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WriteFile.cpp">
+      <Filter>引擎\工具\文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioManager.cpp">
+      <Filter>引擎\工具\音乐</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="1.h">
+      <Filter>游戏</Filter>
+    </ClInclude>
+    <ClInclude Include="2.h">
+      <Filter>游戏</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine.h">
+      <Filter>引擎</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>引擎\场景</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>引擎\场景\控件</Filter>
+    </ClInclude>
+    <ClInclude Include="BmpButtonUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="EditUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectUI.h">
+      <Filter>引擎\场景\控件\具体控件</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneChange.h">
+      <Filter>引擎\场景\切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter1.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter2.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter3.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Enter4.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit1.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit2.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit3.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="Quit4.h">
+      <Filter>引擎\场景\切换\具体切换</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInput.h">
+      <Filter>引擎\工具\输入</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOutput.h">
+      <Filter>引擎\工具\输出</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadFile.h">
+      <Filter>引擎\工具\文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WriteFile.h">
+      <Filter>引擎\工具\文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioManager.h">
+      <Filter>引擎\工具\音乐</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod.h">
+      <Filter>引擎\工具\音乐</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="入口">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="模块">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="模块\协议筛选器">
+      <UniqueIdentifier>{236e1bc7-a42e-4aaa-9b3f-e5b1edc2ae96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="模块\文件数据读取">
+      <UniqueIdentifier>{a1cc8580-f39a-4ce1-a447-53625cc45130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="模块\数据类型定义">
+      <UniqueIdentifier>{0a4342bc-2040-4c9a-8f92-b62be04ff4e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="模块\游戏相关">
+      <UniqueIdentifier>{3391d369-b808-4854-a211-8d295c76b20d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="工具">
+      <UniqueIdentifier>{4cc0143d-95c2-46fd-a546-fe22f0b3113b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>入口</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtocolFilter.cpp">
+      <Filter>模块\协议筛选器</Filter>
+    </ClCompile>
+    <ClCompile Include="FileData.cpp">
+      <Filter>模块\文件数据读取</Filter>
+    </ClCompile>
+    <ClCompile Include="BlackJack.cpp">
+      <Filter>模块\游戏相关</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryPool.cpp">
+      <Filter>工具</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpServer.cpp">
+      <Filter>工具</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ProtocolFilter.h">
+      <Filter>模块\协议筛选器</Filter>
+    </ClInclude>
+    <ClInclude Include="FileData.h">
+      <Filter>模块\文件数据读取</Filter>
+    </ClInclude>
+    <ClInclude Include="DataType.h">
+      <Filter>模块\数据类型定义</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackJack.h">
+      <Filter>模块\游戏相关</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryPool.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="SqQueue.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpServer.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

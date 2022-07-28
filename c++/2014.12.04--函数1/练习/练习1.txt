@@ -1,0 +1,16 @@
+21)得到一个字符串的对应整数的函数
+	bool Str2Int(const char* s, int* i);
+	如果s可以转换为整数("1234"),则返回true,并且*i被填写上转换之后的整数
+	如果s不能转换为整数("1a2b"),则返回false
+	
+22)对内存进行拷贝的函数
+	void* MemoryCopy(void* p1, const void* p2, int num);
+	从p2开始拷贝num个字节到p1所指向的内存区中,并返回p1
+	
+23)对指定位进行设置的函数
+	void SetBit(void* p, int n, bool b);
+	将p开始的地址上的第n个位设置为(b为true)1或(b为false)0
+	
+24)得到指定位的函数
+	bool GetBit(void* p, int n);
+	若p开始的地址上的第n个位是1就返回真,是0就返回假
