@@ -27,7 +27,7 @@ public:
 	static std::size_t readMemory(HANDLE handle, std::uintptr_t address, void* buffer, int size);
 	static std::size_t writeMemory(HANDLE handle, std::uintptr_t address, void* buffer, int size);
 	static auto generateBadCharTable(std::string_view pattern) noexcept;
-	static std::uintptr_t findPattern(const char* start, size_t size, std::string_view pattern, bool reportNotFound = true) noexcept;
+	static std::uintptr_t findPattern(std::uintptr_t moduleAdress, const char* signature);
 	static std::uint8_t* findSignature(void* moduleBase, const char* szSignature) noexcept;
 	static std::uintptr_t findPatternInMemory(HANDLE hPorcess, std::uintptr_t start, size_t size, const std::vector<std::uint8_t>& pattern) noexcept;
 

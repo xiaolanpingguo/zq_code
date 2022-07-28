@@ -157,48 +157,61 @@ auto Utils::generateBadCharTable(std::string_view pattern) noexcept
 	return table;
 }
 
-std::uintptr_t Utils::findPattern(const char* start, size_t size, std::string_view pattern, bool reportNotFound) noexcept
+std::uintptr_t Utils::findPattern(std::uintptr_t moduleAdress, const char* signature)
 {
-	if (start == nullptr || size == 0)
-	{
-		return 0;
-	}
+    static auto patternToByte = [](const char* pattern)
+    {
+        auto       bytes = std::vector<int>{};
+        const auto start = const_cast<char*>(pattern);
+        const auto end = const_cast<char*>(pattern) + strlen(pattern);
 
-	const size_t lastIdx = pattern.length() - 1;
-	const std::array<std::size_t, (std::numeric_limits<std::uint8_t>::max)() + 1> badCharTable = generateBadCharTable(pattern);;
-	const char* end = start + size - pattern.length();
+        for (auto current = start; current < end; ++current)
+        {
+            if (*current == '?')
+            {
+                ++current;
+                if (*current == '?')
+                    ++current;
+                bytes.push_back(-1);
+            }
+            else 
+			{ 
+				bytes.push_back(strtoul(current, &current, 16)); 
+			}
+        }
 
-	while (start <= end) 
-	{
-		size_t i = lastIdx;
-		if (pattern[i] == '?')
-		{
+        return bytes;
+    };
 
+    const auto dosHeader = (PIMAGE_DOS_HEADER)moduleAdress;
+    const auto ntHeaders = (PIMAGE_NT_HEADERS)((std::uint8_t*)moduleAdress + dosHeader->e_lfanew);
+
+    const auto sizeOfImage = ntHeaders->OptionalHeader.SizeOfImage;
+    auto       patternBytes = patternToByte(signature);
+    const auto scanBytes = reinterpret_cast<std::uint8_t*>(moduleAdress);
+
+    const auto s = patternBytes.size();
+    const auto d = patternBytes.data();
+
+    for (auto i = 0ul; i < sizeOfImage - s; ++i)
+    {
+        bool found = true;
+        for (auto j = 0ul; j < s; ++j)
+        {
+            if (scanBytes[i + j] != d[j] && d[j] != -1)
+            {
+                found = false;
+                break;
+            }
+        }
+
+        if (found) 
+		{ 
+			return reinterpret_cast<uintptr_t>(&scanBytes[i]);
 		}
-		if (start[i] == pattern[i])
-		{
+    }
 
-		}
-		while (i >= 0 && (pattern[i] == '?' || start[i] == pattern[i]))
-		{
-			--i;
-		}
-
-		if (i < 0)
-		{
-			return reinterpret_cast<std::uintptr_t>(start);
-		}
-
-		start += badCharTable[static_cast<std::uint8_t>(start[lastIdx])];
-	}
-
-	if (reportNotFound)
-	{
-		assert(false);
-		MessageBoxA(nullptr, ("Failed to find pattern #" + std::string(pattern) + '!').c_str(), "Osiris", MB_OK | MB_ICONWARNING);
-	}
-
-	return 0;
+    return 0;
 }
 
 std::uint8_t* Utils::findSignature(void* moduleBase, const char* szSignature) noexcept
