@@ -5,25 +5,33 @@
 #include <format>
 
 
-namespace Log
+class Log
 {
+public:
+    Log() = default;
+    ~Log() = default;
 
-    static bool s_enableConsole = false;
-    static void enableConsole()
+    static Log& getInstance()
+    {
+        static Log log;
+        return log;
+    }
+
+    void enableConsole()
     {
         FreeConsole();
         AllocConsole();
         SetConsoleTitleA("D3D11 - DEBUG");
         FILE* file = NULL;
         freopen_s(&file, "CON", "w", stdout);
-        s_enableConsole = true;
+        m_enableConsole = true;
     }
 
     template <typename ...Args>
-    static void LogMsg(std::string_view formatStr, Args&& ...args)
+    void LogMsg(std::string_view formatStr, Args&& ...args)
     {
         std::string str = std::format(formatStr, std::forward<Args>(args)...);
-        if (!s_enableConsole)
+        if (!m_enableConsole)
         {
             ::OutputDebugStringA(str.c_str());
             return;
@@ -35,11 +43,14 @@ namespace Log
         SetConsoleTextAttribute(hConsole, 11);
         fprintf(stdout, "Log:");
         SetConsoleTextAttribute(hConsole, 7);
-        fprintf(stdout, "] %s\n", str.c_str());
+        fprintf(stdout, "] %s", str.c_str());
 
         ::OutputDebugStringA(str.c_str());
     }
+
+private:
+    bool m_enableConsole = false;
 };
 
-#define LOG_ENABLE_CONSOLE() Log::enableConsole()
-#define LOG_INFO(TEXT, ...) Log::LogMsg(TEXT, __VA_ARGS__)
+#define LOG_ENABLE_CONSOLE() Log::getInstance().enableConsole()
+#define LOG_INFO(TEXT, ...)  Log::getInstance().LogMsg(TEXT, __VA_ARGS__)

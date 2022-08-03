@@ -17,33 +17,57 @@
 #include "../imgui/imgui_impl_win32.h"
 #include "../log.h"
 
+/*
+you can look up Vtable funtions by add  /d1 reportSingleClassLayoutIDXGISwapChain to VS->C/C++>commandline
+IDXGISwapChain  VTable
+1> 0	| &IUnknown::QueryInterface
+1> 1	| &IUnknown::AddRef
+1> 2	| &IUnknown::Release
+1> 3	| &IDXGIObject::SetPrivateData
+1> 4	| &IDXGIObject::SetPrivateDataInterface
+1> 5	| &IDXGIObject::GetPrivateData
+1> 6	| &IDXGIObject::GetParent
+1> 7	| &IDXGIDeviceSubObject::GetDevice
+1> 8	| &IDXGISwapChain::Present
+1> 9	| &IDXGISwapChain::GetBuffer
+1>10	| &IDXGISwapChain::SetFullscreenState
+1>11	| &IDXGISwapChain::GetFullscreenState
+1>12	| &IDXGISwapChain::GetDesc
+1>13	| &IDXGISwapChain::ResizeBuffers
+1>14	| &IDXGISwapChain::ResizeTarget
+1>15	| &IDXGISwapChain::GetContainingOutput
+1>16	| &IDXGISwapChain::GetFrameStatistics
+1>17	| &IDXGISwapChain::GetLastPresentCount
+*/
 
-typedef HRESULT(__stdcall *D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+
+typedef HRESULT(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 D3D11PresentHook g_phookD3D11Present = nullptr;
+
+typedef HRESULT(__stdcall* D3D11ResizeBufferHook) (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+D3D11ResizeBufferHook g_presizeBufferHook = nullptr;
 
 DWORD_PTR* g_pSwapChainVtable = nullptr;
 ID3D11Device* g_pDevice = nullptr;
 ID3D11DeviceContext* g_pContext = nullptr;
 ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
-IDXGISwapChain* g_pSwapChain = nullptr;
-
+bool g_init = false;
 WNDPROC g_hGameWindowProc;
-
 Dx11Hook::ConfigData g_configData;
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK hookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	CallWindowProc((WNDPROC)ImGui_ImplWin32_WndProcHandler, hWnd, uMsg, wParam, lParam);
+    CallWindowProc((WNDPROC)ImGui_ImplWin32_WndProcHandler, hWnd, uMsg, wParam, lParam);
 
-	ImGuiIO& io = ImGui::GetIO();
-	if (io.WantCaptureMouse || io.WantCaptureKeyboard) 
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse || io.WantCaptureKeyboard)
     {
-		return true;
-	}
+        return true;
+    }
 
-	return CallWindowProc(g_hGameWindowProc, hWnd, uMsg, wParam, lParam);
+    return CallWindowProc(g_hGameWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
 HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
@@ -51,48 +75,113 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [&]()
     {
-        if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&g_pDevice)) &&
-            SUCCEEDED(pSwapChain->GetDevice(__uuidof(g_pDevice), (void**)&g_pDevice)))
+        if (FAILED(pSwapChain->GetDevice(__uuidof(g_pDevice), (void**)&g_pDevice)))
         {
-            g_pDevice->GetImmediateContext(&g_pContext);
+            LOG_INFO("hookD3D11Present failed, GetDevice failed.\n");
+            return;
         }
 
+        g_pDevice->GetImmediateContext(&g_pContext);
+
         ID3D11Texture2D* pRenderTargetTexture = NULL;
-        if (SUCCEEDED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pRenderTargetTexture)) &&
-            SUCCEEDED(g_pDevice->CreateRenderTargetView(pRenderTargetTexture, NULL, &g_pRenderTargetView)))
+        pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pRenderTargetTexture);
+        if (pRenderTargetTexture)
         {
+            if (FAILED(g_pDevice->CreateRenderTargetView(pRenderTargetTexture, NULL, &g_pRenderTargetView)))
+            {
+                LOG_INFO("hookD3D11Present failed, CreateRenderTargetView failed.\n");
+                pRenderTargetTexture->Release();
+                return;
+            }
+ 
             pRenderTargetTexture->Release();
+        }
+        else
+        {
+            LOG_INFO("hookD3D11Present failed, pRenderTargetTexture == nullptr.\n");
+            return;
         }
 
         HWND hGameWindow = (HWND)g_configData.gameWindow;
+        if (hGameWindow == nullptr)
+        {
+            LOG_INFO("hookD3D11Present failed, hGameWindow == nullptr.\n");
+            return;
+        }
+
         g_hGameWindowProc = (WNDPROC)SetWindowLongPtr(hGameWindow, GWLP_WNDPROC, (LONG_PTR)hookWndProc);
+        if (g_hGameWindowProc == nullptr)
+        {
+            LOG_INFO("hookD3D11Present failed, g_hGameWindowProc == nullptr.\n");
+            return;
+        }
 
         // init imgui
         ImGui::CreateContext();
-        ImGui_ImplWin32_Init(hGameWindow);
-        ImGui_ImplDX11_Init(g_pDevice, g_pContext);
+        if (!ImGui_ImplWin32_Init(hGameWindow) || !ImGui_ImplDX11_Init(g_pDevice, g_pContext))
+        {
+            LOG_INFO("hookD3D11Present failed, imgui init failed.\n");
+            return;
+        }
+
+        LOG_INFO("hookD3D11Present, pSwapChain         {}\n", (void*)pSwapChain);
+        LOG_INFO("hookD3D11Present, g_pDevice          {}\n", (void*)g_pDevice);
+        LOG_INFO("hookD3D11Present, g_pContext         {}\n", (void*)g_pContext);
+
+        g_init = true;
     });
 
-	// must call before drawing
+    if (!g_init)
+    {
+        return g_phookD3D11Present(pSwapChain, SyncInterval, Flags);
+    }
+
+    // must call before drawing
     g_pContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
 
-	// custom rendering ---------------------------------------------
+    // custom rendering ---------------------------------------------
 
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
     if (g_configData.renderFun)
     {
         g_configData.renderFun();
     }
 
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-	return g_phookD3D11Present(pSwapChain, SyncInterval, Flags);
+    return g_phookD3D11Present(pSwapChain, SyncInterval, Flags);
 }
 
+HRESULT WINAPI hookD3D11ResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+{
+    if (g_pDevice == nullptr)
+    {
+        return g_presizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    }
+
+    LOG_INFO("hookD3D11ResizeBufferm, window will resize,Width{}, Height:{}.\n", Width, Height);
+    if (g_pRenderTargetView)
+    {
+        g_pRenderTargetView->Release();
+        g_pRenderTargetView = nullptr;
+    }
+
+    HRESULT hr = g_presizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+
+    ID3D11Texture2D* pRenderTargetTexture = NULL;
+    pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pRenderTargetTexture);
+    if (pRenderTargetTexture)
+    {
+        g_pDevice->CreateRenderTargetView(pRenderTargetTexture, NULL, &g_pRenderTargetView);
+        pRenderTargetTexture->Release();
+    }
+
+    return hr;
+}
 
 LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -103,8 +192,9 @@ namespace Dx11Hook{
 
 bool start(const ConfigData& config)
 {
-    if (config.gameWindow == NULL)
+    if (config.gameWindow == nullptr)
     {
+        LOG_INFO("start hook failed, config.gameWindow == NULL\n");
         return false;
     }
 
@@ -116,6 +206,7 @@ bool start(const ConfigData& config)
     {
         if (tryNum >= 15)
         {
+            LOG_INFO("start hook failed, can't found dxgi.dll\n");
             return false;
         }
 
@@ -159,8 +250,7 @@ bool start(const ConfigData& config)
     createFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-    IDXGISwapChain* d3dSwapChain = 0;
-
+    IDXGISwapChain* swapChain = nullptr;
     if (FAILED(D3D11CreateDeviceAndSwapChain(
         nullptr,
         D3D_DRIVER_TYPE_HARDWARE,
@@ -170,22 +260,31 @@ bool start(const ConfigData& config)
         sizeof(requestedLevels) / sizeof(D3D_FEATURE_LEVEL),
         D3D11_SDK_VERSION,
         &scd,
-        &g_pSwapChain,
+        &swapChain,
         &g_pDevice,
         &obtainedLevel,
         &g_pContext)))
     {
+        LOG_INFO("start hook failed, D3D11CreateDeviceAndSwapChain failed.\n");
         return false;
     }
 
-    g_pSwapChainVtable = (DWORD_PTR*)g_pSwapChain;
+    g_pSwapChainVtable = (DWORD_PTR*)swapChain;
     g_pSwapChainVtable = (DWORD_PTR*)g_pSwapChainVtable[0];
-
     g_phookD3D11Present = (D3D11PresentHook)g_pSwapChainVtable[8];
+    g_presizeBufferHook = (D3D11ResizeBufferHook)g_pSwapChainVtable[13];
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     DetourAttach(&(PVOID&)g_phookD3D11Present, hookD3D11Present);
+    DetourAttach(&(PVOID&)g_presizeBufferHook, hookD3D11ResizeBuffer);
     DetourTransactionCommit();
+
+    LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
+    LOG_INFO("SwapChain:             {}\n", (void*)swapChain);
+    LOG_INFO("SwapChainVtable:       {}\n", (void*)g_pSwapChainVtable);
+    LOG_INFO("Device:                {}\n", (void*)g_pDevice);
+    LOG_INFO("DeviceContext:         {}\n", (void*)g_pContext);
+    LOG_INFO("D3D11Present:          {}\n", (void*)g_phookD3D11Present);
 
     DWORD dwOld;
     VirtualProtect(g_phookD3D11Present, 2, PAGE_EXECUTE_READWRITE, &dwOld);
@@ -195,6 +294,10 @@ bool start(const ConfigData& config)
         Sleep(10);
     }
 
+    g_pDevice->Release();
+    g_pContext->Release();
+    swapChain->Release();
+
     return true;
 }
 
@@ -202,13 +305,10 @@ bool shutdown()
 {
     LOG_INFO("dll shutdown\n");
 
-    g_pDevice->Release();
-    g_pContext->Release();
-    g_pSwapChain->Release();
-
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     DetourDetach(&(PVOID&)g_pSwapChainVtable[8], hookD3D11Present);
+    DetourDetach(&(PVOID&)g_pSwapChainVtable[13], hookD3D11ResizeBuffer);
     DetourTransactionCommit();
 	return true;
 }

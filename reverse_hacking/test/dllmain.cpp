@@ -5,6 +5,8 @@
 #include "log.h"
 #include "imgui/imgui.h"
 
+#define WINDOWS_NAME "test"
+
 void DrawImGui()
 {
     ImGui::Begin("ImGui D3D11", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
@@ -30,7 +32,7 @@ void DrawImGui()
 
 static DWORD WINAPI Start(LPVOID)
 {
-    HWND gameWindow = FindWindowA(0, "test");
+    HWND gameWindow = FindWindowA(0, WINDOWS_NAME);
     Dx11Hook::ConfigData data{ gameWindow, DrawImGui };
     Dx11Hook::start(data);
     return 0;
@@ -46,7 +48,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
        // DisableThreadLibraryCalls(hModule);
 
         LOG_ENABLE_CONSOLE();
-        LOG_INFO("DLL_PROCESS_ATTACH: {:x}", (std::uintptr_t)hModule);
+        LOG_INFO("DLL_PROCESS_ATTACH: {:x}\n", (std::uintptr_t)hModule);
 
         std::thread thr(&Start, nullptr);
         thr.detach();
@@ -54,9 +56,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     }
     case DLL_PROCESS_DETACH:
     { 
-        Dx11Hook::shutdown();
         LOG_INFO("DLL_PROCESS_DETACH: {:x}", (std::uintptr_t)hModule);
-        Sleep(1500);
+        Dx11Hook::shutdown();
         break;
     }
     }

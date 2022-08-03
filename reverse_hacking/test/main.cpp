@@ -11,7 +11,7 @@ int main()
     int* p = &a;
 
     LOG_ENABLE_CONSOLE();
-    LOG_INFO("dwad:{:p}:{:d}", (void*)p, a);
+    LOG_INFO("dwad:{}:{:d}", (void*)p, a);
 
     std::getchar();
     return 0;
