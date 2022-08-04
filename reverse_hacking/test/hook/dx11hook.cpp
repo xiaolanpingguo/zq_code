@@ -4,6 +4,7 @@
 #include <D3D11Shader.h>
 #include <D3Dcompiler.h>
 #include <mutex>
+#include <thread>
 #include "Detours/detours.h"
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3dcompiler.lib")
@@ -16,6 +17,10 @@
 #include "../imgui/imgui_impl_dx11.h"
 #include "../imgui/imgui_impl_win32.h"
 #include "../log.h"
+
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 /*
 you can look up Vtable funtions by add  /d1 reportSingleClassLayoutIDXGISwapChain to VS->C/C++>commandline
@@ -41,6 +46,9 @@ IDXGISwapChain  VTable
 */
 
 
+namespace Dx11Hook {
+
+
 typedef HRESULT(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 D3D11PresentHook g_phookD3D11Present = nullptr;
 
@@ -50,13 +58,13 @@ D3D11ResizeBufferHook g_presizeBufferHook = nullptr;
 DWORD_PTR* g_pSwapChainVtable = nullptr;
 ID3D11Device* g_pDevice = nullptr;
 ID3D11DeviceContext* g_pContext = nullptr;
+IDXGISwapChain* g_pSwapChain = nullptr;
 ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
 bool g_init = false;
 WNDPROC g_hGameWindowProc;
 Dx11Hook::ConfigData g_configData;
 
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK hookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     CallWindowProc((WNDPROC)ImGui_ImplWin32_WndProcHandler, hWnd, uMsg, wParam, lParam);
@@ -75,9 +83,12 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [&]()
     {
+        ID3D11Device* oldDevice = g_pDevice;
+        ID3D11DeviceContext* oldContext = g_pContext;
+
         if (FAILED(pSwapChain->GetDevice(__uuidof(g_pDevice), (void**)&g_pDevice)))
         {
-            LOG_INFO("hookD3D11Present failed, GetDevice failed.\n");
+            LOG_INFO("hookD3DPresent failed, GetDevice failed.\n");
             return;
         }
 
@@ -89,7 +100,7 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
         {
             if (FAILED(g_pDevice->CreateRenderTargetView(pRenderTargetTexture, NULL, &g_pRenderTargetView)))
             {
-                LOG_INFO("hookD3D11Present failed, CreateRenderTargetView failed.\n");
+                LOG_INFO("hookD3DPresent failed, CreateRenderTargetView failed.\n");
                 pRenderTargetTexture->Release();
                 return;
             }
@@ -98,21 +109,21 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
         }
         else
         {
-            LOG_INFO("hookD3D11Present failed, pRenderTargetTexture == nullptr.\n");
+            LOG_INFO("hookD3DPresent failed, pRenderTargetTexture == nullptr.\n");
             return;
         }
 
         HWND hGameWindow = (HWND)g_configData.gameWindow;
         if (hGameWindow == nullptr)
         {
-            LOG_INFO("hookD3D11Present failed, hGameWindow == nullptr.\n");
+            LOG_INFO("hookD3DPresent failed, hGameWindow == nullptr.\n");
             return;
         }
 
         g_hGameWindowProc = (WNDPROC)SetWindowLongPtr(hGameWindow, GWLP_WNDPROC, (LONG_PTR)hookWndProc);
         if (g_hGameWindowProc == nullptr)
         {
-            LOG_INFO("hookD3D11Present failed, g_hGameWindowProc == nullptr.\n");
+            LOG_INFO("hookD3DPresent failed, g_hGameWindowProc == nullptr.\n");
             return;
         }
 
@@ -120,15 +131,18 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
         ImGui::CreateContext();
         if (!ImGui_ImplWin32_Init(hGameWindow) || !ImGui_ImplDX11_Init(g_pDevice, g_pContext))
         {
-            LOG_INFO("hookD3D11Present failed, imgui init failed.\n");
+            LOG_INFO("hookD3DPresent failed, imgui init failed.\n");
             return;
         }
 
-        LOG_INFO("hookD3D11Present, pSwapChain         {}\n", (void*)pSwapChain);
-        LOG_INFO("hookD3D11Present, g_pDevice          {}\n", (void*)g_pDevice);
-        LOG_INFO("hookD3D11Present, g_pContext         {}\n", (void*)g_pContext);
-
+        // release old object
+        oldDevice->Release();
+        oldContext->Release();
         g_init = true;
+
+        LOG_INFO("hookD3DPresent success, pSwapChain         {}\n", (void*)pSwapChain);
+        LOG_INFO("hookD3DPresent success, g_pDevice          {}\n", (void*)g_pDevice);
+        LOG_INFO("hookD3DPresent success, g_pContext         {}\n", (void*)g_pContext);
     });
 
     if (!g_init)
@@ -188,9 +202,23 @@ LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-namespace Dx11Hook{
+bool shutdown()
+{
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 
-bool start(const ConfigData& config)
+    g_pSwapChain->Release();
+    g_pRenderTargetView->Release();
+
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    DetourDetach(&(PVOID&)g_pSwapChainVtable[8], hookD3D11Present);
+    DetourDetach(&(PVOID&)g_pSwapChainVtable[13], hookD3D11ResizeBuffer);
+    DetourTransactionCommit();
+    return true;
+}
+
+bool threadStart(const ConfigData& config)
 {
     if (config.gameWindow == nullptr)
     {
@@ -199,22 +227,6 @@ bool start(const ConfigData& config)
     }
 
     g_configData = config;
-
-    HMODULE hDXGIDLL = 0;
-    int tryNum = 0;
-    do
-    {
-        if (tryNum >= 15)
-        {
-            LOG_INFO("start hook failed, can't found dxgi.dll\n");
-            return false;
-        }
-
-        hDXGIDLL = GetModuleHandleA("dxgi.dll");
-        Sleep(100);
-        tryNum++;
-    } while (!hDXGIDLL);
-    Sleep(100);
 
     WNDCLASSEXA wc = { sizeof(WNDCLASSEX), CS_CLASSDC, wndProc, 0L, 0L, GetModuleHandleA(NULL), NULL, NULL, NULL, NULL, "DX", NULL };
     RegisterClassExA(&wc);
@@ -250,7 +262,6 @@ bool start(const ConfigData& config)
     createFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-    IDXGISwapChain* swapChain = nullptr;
     if (FAILED(D3D11CreateDeviceAndSwapChain(
         nullptr,
         D3D_DRIVER_TYPE_HARDWARE,
@@ -260,7 +271,7 @@ bool start(const ConfigData& config)
         sizeof(requestedLevels) / sizeof(D3D_FEATURE_LEVEL),
         D3D11_SDK_VERSION,
         &scd,
-        &swapChain,
+        &g_pSwapChain,
         &g_pDevice,
         &obtainedLevel,
         &g_pContext)))
@@ -269,7 +280,7 @@ bool start(const ConfigData& config)
         return false;
     }
 
-    g_pSwapChainVtable = (DWORD_PTR*)swapChain;
+    g_pSwapChainVtable = (DWORD_PTR*)g_pSwapChain;
     g_pSwapChainVtable = (DWORD_PTR*)g_pSwapChainVtable[0];
     g_phookD3D11Present = (D3D11PresentHook)g_pSwapChainVtable[8];
     g_presizeBufferHook = (D3D11ResizeBufferHook)g_pSwapChainVtable[13];
@@ -280,37 +291,26 @@ bool start(const ConfigData& config)
     DetourTransactionCommit();
 
     LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
-    LOG_INFO("SwapChain:             {}\n", (void*)swapChain);
+    LOG_INFO("SwapChain:             {}\n", (void*)g_pSwapChain);
     LOG_INFO("SwapChainVtable:       {}\n", (void*)g_pSwapChainVtable);
     LOG_INFO("Device:                {}\n", (void*)g_pDevice);
     LOG_INFO("DeviceContext:         {}\n", (void*)g_pContext);
     LOG_INFO("D3D11Present:          {}\n", (void*)g_phookD3D11Present);
-
-    DWORD dwOld;
-    VirtualProtect(g_phookD3D11Present, 2, PAGE_EXECUTE_READWRITE, &dwOld);
 
     while (true)
     {
         Sleep(10);
     }
 
-    g_pDevice->Release();
-    g_pContext->Release();
-    swapChain->Release();
-
-    return true;
+    // When the target process exits, all resources will be released, so there is no need to release resources.
+    // The code here is just a hint, and the code never be called here
+    shutdown();
 }
 
-bool shutdown()
+void start(const ConfigData& config)
 {
-    LOG_INFO("dll shutdown\n");
-
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    DetourDetach(&(PVOID&)g_pSwapChainVtable[8], hookD3D11Present);
-    DetourDetach(&(PVOID&)g_pSwapChainVtable[13], hookD3D11ResizeBuffer);
-    DetourTransactionCommit();
-	return true;
+    std::thread thr(&threadStart, config);
+    thr.detach();
 }
 
 }

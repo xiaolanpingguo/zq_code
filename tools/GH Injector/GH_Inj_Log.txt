@@ -55,4 +55,33 @@ OS                 : Windows 10 21H1 (Build 19043)
 File               : E:\program\osp\my_code\27-07-2022 14:29:07
 Version            : GH Injector V4.6
 OS                 : Windows 10 21H1 (Build 19043)
-File               : E:\program\osp\my_code\
+File               : E:\program\osp\my_code\04-08-2022 14:04:45
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\zq_code\reverse_hacking\x64\Debug\test.dll
+Target             : dx9test.exe
+Target PID         : 80040
+Source             : NtCreateThreadEx.cpp in SR_NtCreateThreadEx at line 403
+Errorcode          : 0x10100009
+Advanced errorcode : 0x00000102
+Injectionmode      : LoadLibraryExW
+Launchmethod       : NtCreateThreadEx
+Platform           : x64/x86 (native)
+HandleValue        : 0x00000000
+Flags              : 0x00000000
+
+04-08-2022 14:06:57
+Version            : GH Injector V4.6
+OS                 : Windows 10 21H1 (Build 19043)
+File               : E:\program\osp\zq_code\reverse_hacking\x64\Debug\test.dll
+Target             : dx9test.exe
+Target PID         : 22804
+Source             : NtCreateThreadEx.cpp in SR_NtCreateThreadEx at line 403
+Errorcode          : 0x10100009
+Advanced errorcode : 0x00000102
+Injectionmode      : LoadLibraryExW
+Launchmethod       : NtCreateThreadEx
+Platform           : x64/x86 (native)
+HandleValue        : 0x00000000
+Flags              : 0x00000000
+

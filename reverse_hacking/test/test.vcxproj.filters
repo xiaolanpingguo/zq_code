@@ -32,6 +32,12 @@
       <Filter>hook</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="hook\dx9hook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_dx9.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="process_mamager.h" />
@@ -77,6 +83,12 @@
       <Filter>hook</Filter>
     </ClInclude>
     <ClInclude Include="log.h" />
+    <ClInclude Include="hook\dx9hook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_dx9.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="hook">

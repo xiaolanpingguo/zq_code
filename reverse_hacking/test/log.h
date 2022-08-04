@@ -21,7 +21,7 @@ public:
     {
         FreeConsole();
         AllocConsole();
-        SetConsoleTitleA("D3D11 - DEBUG");
+        SetConsoleTitleA("Log Debug Window");
         FILE* file = NULL;
         freopen_s(&file, "CON", "w", stdout);
         m_enableConsole = true;

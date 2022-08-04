@@ -1,6 +1,6 @@
 #include <functional>
 
-namespace Dx11Hook
+namespace Dx9Hook
 {
     struct ConfigData
     {
