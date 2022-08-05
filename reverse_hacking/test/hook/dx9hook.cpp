@@ -15,6 +15,273 @@
 #include "../log.h"
 
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
+namespace Dx9Hook {
+
+typedef HRESULT(__stdcall* D3D9PresentHook) (IDirect3DDevice9* pDevice, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
+D3D9PresentHook g_hookD3D9Present = nullptr;
+
+typedef HRESULT(__stdcall* D3D9ResetHook) (IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
+D3D9ResetHook g_resetHook = nullptr;
+
+typedef HRESULT(__stdcall* D3D9EndSceneHook)(IDirect3DDevice9* pDevice);
+D3D9EndSceneHook g_endSceneHook = nullptr;
+
+IDirect3D9* g_d3d = NULL;
+IDirect3DDevice9* g_device = NULL;
+std::uintptr_t* g_d3dDeviceVtable = nullptr;
+bool g_init = false;
+WNDPROC g_gameWindowProc;
+Dx9Hook::ConfigData g_configData;
+
+
+LRESULT CALLBACK hookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    CallWindowProc((WNDPROC)ImGui_ImplWin32_WndProcHandler, hWnd, uMsg, wParam, lParam);
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse || io.WantCaptureKeyboard)
+    {
+        return true;
+    }
+
+    return CallWindowProc(g_gameWindowProc, hWnd, uMsg, wParam, lParam);
+}
+
+HRESULT WINAPI hookD3D9Present(IDirect3DDevice9* pDevice, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
+{
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [&]()
+    {
+        HWND hGameWindow = (HWND)g_configData.gameWindow;
+        if (hGameWindow == nullptr)
+        {
+            LOG_INFO("hookD3DPresent failed, hGameWindow == nullptr.\n");
+            return;
+        }
+
+        g_gameWindowProc = (WNDPROC)SetWindowLongPtr(hGameWindow, GWLP_WNDPROC, (LONG_PTR)hookWndProc);
+        if (g_gameWindowProc == nullptr)
+        {
+            LOG_INFO("hookD3DPresent failed, g_gameWindowProc == nullptr.\n");
+            return;
+        }
+
+        // init imgui
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGui::StyleColorsDark();
+        if (!ImGui_ImplWin32_Init(hGameWindow) || !ImGui_ImplDX9_Init(pDevice))
+        {
+            LOG_INFO("hookD3DPresent failed, imgui init failed.\n");
+            return;
+        }
+
+        g_device = pDevice;
+        g_init = true;
+        LOG_INFO("hookD3DPresent success, g_device          {}\n", (void*)g_device);
+    });
+
+    if (!g_init)
+    {
+        return g_hookD3D9Present(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    }
+
+    // custom rendering ---------------------------------------------
+
+    ImGui_ImplDX9_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    if (g_configData.renderFun)
+    {
+        g_configData.renderFun();
+    }
+
+    ImGui::EndFrame();
+    if (g_device->BeginScene() >= 0)
+    {
+        ImGui::Render();
+
+        DWORD colorwrite, srgbwrite;
+        g_device->GetRenderState(D3DRS_COLORWRITEENABLE, &colorwrite);
+        g_device->GetRenderState(D3DRS_SRGBWRITEENABLE, &srgbwrite);
+        g_device->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
+        g_device->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
+        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+        g_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorwrite);
+        g_device->SetRenderState(D3DRS_SRGBWRITEENABLE, srgbwrite);
+        g_device->EndScene();
+    }
+
+    return g_hookD3D9Present(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+}
+
+HRESULT WINAPI hookD3D9Reset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
+{
+    LOG_INFO("hookD3D9Reset, window will resize,Width{}, Height:{}.\n", pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
+    ::ImGui_ImplDX9_InvalidateDeviceObjects();
+    const HRESULT hr = g_resetHook(pDevice, pPresentationParameters);
+    if (hr >= 0)
+    {
+        ::ImGui_ImplDX9_CreateDeviceObjects();
+    }
+
+    return hr;
+}
+
+HRESULT WINAPI hookD3D9EndScene(IDirect3DDevice9* pDevice)
+{
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [&]()
+    {
+        HWND hGameWindow = (HWND)g_configData.gameWindow;
+        if (hGameWindow == nullptr)
+        {
+            LOG_INFO("hookD3D9EndScene failed, hGameWindow == nullptr.\n");
+            return;
+        }
+
+        g_gameWindowProc = (WNDPROC)SetWindowLongPtr(hGameWindow, GWLP_WNDPROC, (LONG_PTR)hookWndProc);
+        if (g_gameWindowProc == nullptr)
+        {
+            LOG_INFO("hookD3D9EndScene failed, g_gameWindowProc == nullptr.\n");
+            return;
+        }
+
+        // init imgui
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGui::StyleColorsDark();
+        if (!ImGui_ImplWin32_Init(hGameWindow) || !ImGui_ImplDX9_Init(pDevice))
+        {
+            LOG_INFO("hookD3D9EndScene failed, imgui init failed.\n");
+            return;
+        }
+
+        g_device = pDevice;
+        g_init = true;
+        LOG_INFO("hookD3D9EndScene success, g_device          {}\n", (void*)g_device);
+    });
+
+    if (!g_init)
+    {
+        return g_endSceneHook(pDevice);
+    }
+
+    // custom rendering ---------------------------------------------
+
+    ImGui_ImplDX9_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    if (g_configData.renderFun)
+    {
+        g_configData.renderFun();
+    }
+
+    ImGui::EndFrame();
+    ImGui::Render();
+
+    DWORD colorwrite, srgbwrite;
+    g_device->GetRenderState(D3DRS_COLORWRITEENABLE, &colorwrite);
+    g_device->GetRenderState(D3DRS_SRGBWRITEENABLE, &srgbwrite);
+    g_device->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
+    g_device->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
+    ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+    g_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorwrite);
+    g_device->SetRenderState(D3DRS_SRGBWRITEENABLE, srgbwrite);
+
+    return g_endSceneHook(pDevice);
+}
+
+LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+bool threadStart(const ConfigData& config)
+{
+    if (config.gameWindow == nullptr)
+    {
+        LOG_INFO("start hook failed, config.gameWindow == NULL\n");
+        return false;
+    }
+
+    g_configData = config;
+
+    WNDCLASSEXA wc = { sizeof(WNDCLASSEX), CS_CLASSDC, wndProc, 0L, 0L, GetModuleHandleA(NULL), NULL, NULL, NULL, NULL, "DX", NULL };
+    RegisterClassExA(&wc);
+
+    HWND hWnd = CreateWindowA(wc.lpszClassName, NULL, WS_OVERLAPPEDWINDOW, 100, 100, 300, 300, NULL, NULL, wc.hInstance, NULL);
+
+    IDirect3D9* d3d = nullptr;
+    IDirect3DDevice9* device = nullptr;
+    if (NULL == (d3d = Direct3DCreate9(D3D_SDK_VERSION)))
+    {
+        LOG_INFO("start hook failed, Direct3DCreate9 failed\n");
+        return false;
+    }
+
+    D3DPRESENT_PARAMETERS d3dpp;
+    ZeroMemory(&d3dpp, sizeof(d3dpp));
+    d3dpp.Windowed = TRUE;
+    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;// Need to use an explicit format with alpha if needing per-pixel alpha composition.
+    d3dpp.EnableAutoDepthStencil = TRUE;
+    d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;           // Present with vsync
+    //d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;   // Present without vsync, maximum unthrottled framerate
+    if (FAILED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
+        D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device)))
+    {
+        LOG_INFO("start hook failed, CreateDevice failed\n");
+        return false;
+    }
+
+    // there are two ways draw imgui: hook EndScene and Present
+    g_d3dDeviceVtable = (std::uintptr_t*)g_device;
+    g_d3dDeviceVtable = (std::uintptr_t*)g_d3dDeviceVtable[0];
+    g_hookD3D9Present = (D3D9PresentHook)g_d3dDeviceVtable[17];
+    g_resetHook = (D3D9ResetHook)g_d3dDeviceVtable[16];
+    g_endSceneHook = (D3D9EndSceneHook)g_d3dDeviceVtable[42];
+
+    d3d->Release();
+    device->Release();
+
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    //DetourAttach(&(PVOID&)g_hookD3D9Present, hookD3D9Present);
+    DetourAttach(&(PVOID&)g_resetHook, hookD3D9Reset);
+    DetourAttach(&(PVOID&)g_endSceneHook, hookD3D9EndScene);
+    DetourTransactionCommit();
+
+
+    LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
+    LOG_INFO("g_d3dDeviceVtable:    {}\n", (void*)g_d3dDeviceVtable);
+    LOG_INFO("g_hookD3D9Present:    {}\n", (void*)g_hookD3D9Present);
+    LOG_INFO("g_resetHook:          {}\n", (void*)g_resetHook);
+    LOG_INFO("g_endSceneHook:       {}\n", (void*)g_endSceneHook);
+
+    while (true)
+    {
+        Sleep(10);
+    }
+
+    return true;
+}
+
+void start(const ConfigData& config)
+{
+    std::thread thr(&threadStart, config);
+    thr.detach();
+}
+
+}
+
+
 /*
 you can look up Vtable funtions by add  /d1 reportSingleClassLayoutIDirect3DDevice9  to VS->C/C++>commandline
 IDirect3DDevice9   VTable
@@ -138,291 +405,3 @@ IDirect3DDevice9   VTable
 1>117	| &IDirect3DDevice9::DeletePatch
 1>118	| &IDirect3DDevice9::CreateQuery
 */
-
-
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-
-namespace Dx9Hook {
-
-typedef HRESULT(__stdcall* D3D9PresentHook) (IDirect3DDevice9* pDevice, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
-D3D9PresentHook g_phookD3D9Present = nullptr;
-
-typedef HRESULT(__stdcall* D3D9ResetHook) (IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
-D3D9ResetHook g_presetHook = nullptr;
-
-typedef HRESULT(__stdcall* D3D9EndSceneHook)(IDirect3DDevice9* pDevice);
-D3D9EndSceneHook g_pendSceneHook = nullptr;
-
-IDirect3D9* g_pD3D = NULL;
-IDirect3DDevice9* g_pDevice = NULL;
-DWORD_PTR* g_pd3dDeviceVtable = nullptr;
-bool g_init = false;
-WNDPROC g_hGameWindowProc;
-Dx9Hook::ConfigData g_configData;
-
-
-LRESULT CALLBACK hookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    CallWindowProc((WNDPROC)ImGui_ImplWin32_WndProcHandler, hWnd, uMsg, wParam, lParam);
-
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.WantCaptureMouse || io.WantCaptureKeyboard)
-    {
-        return true;
-    }
-
-    return CallWindowProc(g_hGameWindowProc, hWnd, uMsg, wParam, lParam);
-}
-
-HRESULT WINAPI hookD3D9Present(IDirect3DDevice9* pDevice, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
-{
-    static std::once_flag onceFlag;
-    std::call_once(onceFlag, [&]()
-    {
-        HWND hGameWindow = (HWND)g_configData.gameWindow;
-        if (hGameWindow == nullptr)
-        {
-            LOG_INFO("hookD3DPresent failed, hGameWindow == nullptr.\n");
-            return;
-        }
-
-        g_hGameWindowProc = (WNDPROC)SetWindowLongPtr(hGameWindow, GWLP_WNDPROC, (LONG_PTR)hookWndProc);
-        if (g_hGameWindowProc == nullptr)
-        {
-            LOG_INFO("hookD3DPresent failed, g_hGameWindowProc == nullptr.\n");
-            return;
-        }
-
-        // init imgui
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        ImGui::StyleColorsDark();
-        if (!ImGui_ImplWin32_Init(hGameWindow) || !ImGui_ImplDX9_Init(pDevice))
-        {
-            LOG_INFO("hookD3DPresent failed, imgui init failed.\n");
-            return;
-        }
-
-        // release old object
-        g_pDevice->Release();
-        g_pDevice = pDevice;
-        g_init = true;
-        LOG_INFO("hookD3DPresent success, g_pDevice          {}\n", (void*)g_pDevice);
-    });
-
-    if (!g_init)
-    {
-        return g_phookD3D9Present(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-    }
-
-    // custom rendering ---------------------------------------------
-
-    ImGui_ImplDX9_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    if (g_configData.renderFun)
-    {
-        g_configData.renderFun();
-    }
-
-    ImGui::EndFrame();
-    if (g_pDevice->BeginScene() >= 0)
-    {
-        ImGui::Render();
-
-        DWORD colorwrite, srgbwrite;
-        g_pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &colorwrite);
-        g_pDevice->GetRenderState(D3DRS_SRGBWRITEENABLE, &srgbwrite);
-        g_pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
-        g_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
-        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-        g_pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, colorwrite);
-        g_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, srgbwrite);
-        g_pDevice->EndScene();
-    }
-
-    return g_phookD3D9Present(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-}
-
-HRESULT WINAPI hookD3D9Reset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
-{
-    LOG_INFO("hookD3D9Reset, window will resize,Width{}, Height:{}.\n", pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
-    ::ImGui_ImplDX9_InvalidateDeviceObjects();
-    const HRESULT hr = g_presetHook(pDevice, pPresentationParameters);
-    if (hr >= 0)
-    {
-        ::ImGui_ImplDX9_CreateDeviceObjects();
-    }
-
-    return hr;
-}
-
-HRESULT WINAPI hookD3D9EndScene(IDirect3DDevice9* pDevice)
-{
-    static std::once_flag onceFlag;
-    std::call_once(onceFlag, [&]()
-    {
-        HWND hGameWindow = (HWND)g_configData.gameWindow;
-        if (hGameWindow == nullptr)
-        {
-            LOG_INFO("hookD3D9EndScene failed, hGameWindow == nullptr.\n");
-            return;
-        }
-
-        g_hGameWindowProc = (WNDPROC)SetWindowLongPtr(hGameWindow, GWLP_WNDPROC, (LONG_PTR)hookWndProc);
-        if (g_hGameWindowProc == nullptr)
-        {
-            LOG_INFO("hookD3D9EndScene failed, g_hGameWindowProc == nullptr.\n");
-            return;
-        }
-
-        // init imgui
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        ImGui::StyleColorsDark();
-        if (!ImGui_ImplWin32_Init(hGameWindow) || !ImGui_ImplDX9_Init(pDevice))
-        {
-            LOG_INFO("hookD3D9EndScene failed, imgui init failed.\n");
-            return;
-        }
-
-        // release old object
-        g_pDevice->Release();
-        g_pDevice = pDevice;
-        g_init = true;
-        LOG_INFO("hookD3D9EndScene success, g_pDevice          {}\n", (void*)g_pDevice);
-    });
-
-    if (!g_init)
-    {
-        return g_pendSceneHook(pDevice);
-    }
-
-    // custom rendering ---------------------------------------------
-
-    ImGui_ImplDX9_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    if (g_configData.renderFun)
-    {
-        g_configData.renderFun();
-    }
-
-    ImGui::EndFrame();
-    ImGui::Render();
-
-    DWORD colorwrite, srgbwrite;
-    g_pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &colorwrite);
-    g_pDevice->GetRenderState(D3DRS_SRGBWRITEENABLE, &srgbwrite);
-    g_pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
-    g_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
-    ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-    g_pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, colorwrite);
-    g_pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, srgbwrite);
-
-    return g_pendSceneHook(pDevice);
-}
-
-LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-bool shutdown()
-{
-    LOG_INFO("dll shutdown\n");
-
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
-
-    g_pD3D->Release();
-
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    //DetourDetach(&(PVOID&)g_pd3dDeviceVtable[17], hookD3D9Present);
-    DetourDetach(&(PVOID&)g_pd3dDeviceVtable[16], hookD3D9Reset);
-    DetourDetach(&(PVOID&)g_pd3dDeviceVtable[42], hookD3D9EndScene);
-    DetourTransactionCommit();
-    return true;
-}
-
-bool threadStart(const ConfigData& config)
-{
-    if (config.gameWindow == nullptr)
-    {
-        LOG_INFO("start hook failed, config.gameWindow == NULL\n");
-        return false;
-    }
-
-    g_configData = config;
-
-    WNDCLASSEXA wc = { sizeof(WNDCLASSEX), CS_CLASSDC, wndProc, 0L, 0L, GetModuleHandleA(NULL), NULL, NULL, NULL, NULL, "DX", NULL };
-    RegisterClassExA(&wc);
-
-    HWND hWnd = CreateWindowA(wc.lpszClassName, NULL, WS_OVERLAPPEDWINDOW, 100, 100, 300, 300, NULL, NULL, wc.hInstance, NULL);
-
-    // Create the D3D object.
-    if (NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
-    {
-        LOG_INFO("start hook failed, Direct3DCreate9 failed\n");
-        return false;
-    }
-
-    D3DPRESENT_PARAMETERS d3dpp;
-    ZeroMemory(&d3dpp, sizeof(d3dpp));
-    d3dpp.Windowed = TRUE;
-    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;// Need to use an explicit format with alpha if needing per-pixel alpha composition.
-    d3dpp.EnableAutoDepthStencil = TRUE;
-    d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;           // Present with vsync
-    //d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;   // Present without vsync, maximum unthrottled framerate
-    if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-        D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_pDevice)))
-    {
-        LOG_INFO("start hook failed, CreateDevice failed\n");
-        return false;
-    }
-
-    // there are two ways draw imgui: hook EndScene and Present
-    g_pd3dDeviceVtable = (DWORD_PTR*)g_pDevice;
-    g_pd3dDeviceVtable = (DWORD_PTR*)g_pd3dDeviceVtable[0];
-    g_phookD3D9Present = (D3D9PresentHook)g_pd3dDeviceVtable[17];
-    g_presetHook = (D3D9ResetHook)g_pd3dDeviceVtable[16];
-    g_pendSceneHook = (D3D9EndSceneHook)g_pd3dDeviceVtable[42];
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    //DetourAttach(&(PVOID&)g_phookD3D9Present, hookD3D9Present);
-    DetourAttach(&(PVOID&)g_presetHook, hookD3D9Reset);
-    DetourAttach(&(PVOID&)g_pendSceneHook, hookD3D9EndScene);
-    DetourTransactionCommit();
-
-    LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
-    LOG_INFO("Device:                {}\n", (void*)g_pDevice);
-    LOG_INFO("g_pd3dDeviceVtable:    {}\n", (void*)g_pd3dDeviceVtable);
-    LOG_INFO("g_phookD3D9Present:    {}\n", (void*)g_phookD3D9Present);
-    LOG_INFO("g_presetHook:          {}\n", (void*)g_presetHook);
-    LOG_INFO("g_pendSceneHook:       {}\n", (void*)g_pendSceneHook);
-
-    while (true)
-    {
-        Sleep(10);
-    }
-
-    // When the target process exits, all resources will be released, so there is no need to release resources.
-    // The code here is just a hint, and the code never be called here
-    shutdown();
-
-    return true;
-}
-
-void start(const ConfigData& config)
-{
-    std::thread thr(&threadStart, config);
-    thr.detach();
-}
-
-}

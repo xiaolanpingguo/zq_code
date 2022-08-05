@@ -38,6 +38,9 @@
     <ClCompile Include="imgui\imgui_impl_dx9.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="hook\dx12hook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="process_mamager.h" />
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="imgui\imgui_impl_dx9.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\dx12hook.h">
+      <Filter>hook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

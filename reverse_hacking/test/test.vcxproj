@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hook\dx11hook.cpp" />
+    <ClCompile Include="hook\dx12hook.cpp" />
     <ClCompile Include="hook\dx9hook.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="hook\Detours\detver.h" />
     <ClInclude Include="hook\Detours\syelog.h" />
     <ClInclude Include="hook\dx11hook.h" />
+    <ClInclude Include="hook\dx12hook.h" />
     <ClInclude Include="hook\dx9hook.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
