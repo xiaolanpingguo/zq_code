@@ -236,8 +236,7 @@ bool threadStart(const ConfigData& config)
         return false;
     }
 
-    g_swapChainVtable = (std::uintptr_t*)swapChain;
-    g_swapChainVtable = (std::uintptr_t*)g_swapChainVtable[0];
+    g_swapChainVtable = (std::uintptr_t*)(*(std::uintptr_t*)swapChain);
     g_hookD3D11Present = (D3D11PresentHook)g_swapChainVtable[8];
     g_resizeBufferHook = (D3D11ResizeBufferHook)g_swapChainVtable[13];
 

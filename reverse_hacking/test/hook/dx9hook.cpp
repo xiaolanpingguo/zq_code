@@ -242,8 +242,7 @@ bool threadStart(const ConfigData& config)
     }
 
     // there are two ways draw imgui: hook EndScene and Present
-    g_d3dDeviceVtable = (std::uintptr_t*)g_device;
-    g_d3dDeviceVtable = (std::uintptr_t*)g_d3dDeviceVtable[0];
+    g_d3dDeviceVtable = (std::uintptr_t*)(*(std::uintptr_t*)g_device);
     g_hookD3D9Present = (D3D9PresentHook)g_d3dDeviceVtable[17];
     g_resetHook = (D3D9ResetHook)g_d3dDeviceVtable[16];
     g_endSceneHook = (D3D9EndSceneHook)g_d3dDeviceVtable[42];

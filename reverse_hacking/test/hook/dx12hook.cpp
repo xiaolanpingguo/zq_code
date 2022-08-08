@@ -355,13 +355,11 @@ bool threadStart(const ConfigData& config)
     }
 
     // hook
-    g_swapChainVtable = (std::uintptr_t*)swapChain;
-    g_swapChainVtable = (std::uintptr_t*)g_swapChainVtable[0];
+    g_swapChainVtable = (std::uintptr_t*)(*(std::uintptr_t*)swapChain);
     g_resizeBufferHook = (Dx12ResizeBufferHook)g_swapChainVtable[13];
     g_present = (Dx12Present)g_swapChainVtable[8];
 
-    g_commandQueueVtable = (std::uintptr_t*)commandQueue;
-    g_commandQueueVtable = (std::uintptr_t*)g_commandQueueVtable[0];
+    g_commandQueueVtable = (std::uintptr_t*)(*(std::uintptr_t*)commandQueue);
     g_executeCommandLists = (Dx12ExecuteCommandLists)g_commandQueueVtable[10];
 
     DetourTransactionBegin();

@@ -9,13 +9,24 @@
 
 
 //#define DX9_HOOK
-//#define DX11_HOOK
-#define DX12_HOOK
+#define DX11_HOOK
+//#define DX12_HOOK
 
 #ifdef DX9_HOOK
 
 void DrawImGui()
 {
+    static bool showMenu = true;
+    if (GetAsyncKeyState(VK_INSERT) & 1)
+    {
+        showMenu = !showMenu;
+    }
+
+    if (!showMenu)
+    {
+        return;
+    }
+
     ImGui::Begin("ImGui dx9 test", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
     ImGui::Spacing();
 
@@ -24,17 +35,8 @@ void DrawImGui()
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
-
-    static bool bShowDemo = false;
-    ImGui::Checkbox("Show Demo Window", &bShowDemo);
-
     ImGui::Spacing();
     ImGui::End();
-
-    if (bShowDemo)
-    {
-        ImGui::ShowDemoWindow(&bShowDemo);
-    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
@@ -71,6 +73,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 void DrawImGui()
 {
+    static bool showMenu = true;
+    if (GetAsyncKeyState(VK_INSERT) & 1)
+    {
+        showMenu = !showMenu;
+    }
+
+    if (!showMenu)
+    {
+        return;
+    }
+
     ImGui::Begin("ImGui dx11 test", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
     ImGui::Spacing();
 
@@ -79,17 +92,7 @@ void DrawImGui()
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
-
-    static bool bShowDemo = false;
-    ImGui::Checkbox("Show Demo Window", &bShowDemo);
-
-    ImGui::Spacing();
     ImGui::End();
-
-    if (bShowDemo)
-    {
-        ImGui::ShowDemoWindow(&bShowDemo);
-    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
@@ -132,6 +135,11 @@ void DrawImGui()
         showMenu = !showMenu;
     }
 
+    if (!showMenu)
+    {
+        return;
+    }
+
    // ImGui::GetIO().MouseDrawCursor = showMenu;
 
     ImGui::Begin("ImGui dx12 test", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
@@ -143,15 +151,8 @@ void DrawImGui()
     ImGui::Separator();
     ImGui::Spacing();
 
-    ImGui::Checkbox("Show Demo Window", &showMenu);
-
     ImGui::Spacing();
     ImGui::End();
-
-    if (showMenu)
-    {
-        ImGui::ShowDemoWindow(&showMenu);
-    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
