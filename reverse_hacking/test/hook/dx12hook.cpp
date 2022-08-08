@@ -32,6 +32,8 @@ Dx12Present g_present = nullptr;
 typedef void(STDMETHODCALLTYPE* Dx12ExecuteCommandLists)(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists);
 Dx12ExecuteCommandLists g_executeCommandLists = nullptr;
 
+typedef HRESULT(STDMETHODCALLTYPE* Dx12ResizeBufferHook) (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+Dx12ResizeBufferHook g_resizeBufferHook = nullptr;
 
 struct FrameContext 
 {
@@ -47,6 +49,7 @@ ID3D12DescriptorHeap* g_descriptorHeapBackBuffers = nullptr;
 ID3D12DescriptorHeap* g_descriptorHeapRender = nullptr;
 ID3D12GraphicsCommandList* g_commandList = nullptr;
 IDXGISwapChain3* g_swapChain3 = nullptr;
+UINT g_bufferCount = 0;
 
 std::uintptr_t* g_swapChainVtable = nullptr;
 std::uintptr_t* g_commandQueueVtable = nullptr;
@@ -101,12 +104,12 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
         desc.OutputWindow = hGameWindow;
         desc.Windowed = ((GetWindowLongPtr(hGameWindow, GWL_STYLE) & WS_POPUP) != 0) ? false : true;
 
-        UINT bufferCount = desc.BufferCount;
-        g_frameContext = new FrameContext[bufferCount];
+        g_bufferCount = desc.BufferCount;
+        g_frameContext = new FrameContext[g_bufferCount];
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptorImGuiRender = {};
         descriptorImGuiRender.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        descriptorImGuiRender.NumDescriptors = bufferCount;
+        descriptorImGuiRender.NumDescriptors = g_bufferCount;
         descriptorImGuiRender.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
         if (FAILED(g_device->CreateDescriptorHeap(&descriptorImGuiRender, IID_PPV_ARGS(&g_descriptorHeapRender))))
@@ -115,14 +118,14 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
             return;
         }           
 
-        ID3D12CommandAllocator* allocator = nullptr;
+        ID3D12CommandAllocator* allocator;
         if (FAILED(g_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&allocator))))
         {
             LOG_INFO("hookPresent failed, CreateCommandAllocator failed.\n");
             return;
         }
 
-        for (UINT i = 0; i < bufferCount; i++)
+        for (UINT i = 0; i < g_bufferCount; i++)
         {
             g_frameContext[i].commandAllocator = allocator;
         }
@@ -136,7 +139,7 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptorBackBuffers;
         descriptorBackBuffers.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        descriptorBackBuffers.NumDescriptors = bufferCount;
+        descriptorBackBuffers.NumDescriptors = g_bufferCount;
         descriptorBackBuffers.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
         descriptorBackBuffers.NodeMask = 1;
         if (FAILED(g_device->CreateDescriptorHeap(&descriptorBackBuffers, IID_PPV_ARGS(&g_descriptorHeapBackBuffers))))
@@ -147,7 +150,7 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 
         const auto RTVDescriptorSize = g_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         D3D12_CPU_DESCRIPTOR_HANDLE RTVHandle = g_descriptorHeapBackBuffers->GetCPUDescriptorHandleForHeapStart();
-        for (UINT i = 0; i < bufferCount; i++)
+        for (UINT i = 0; i < g_bufferCount; i++)
         {
             ID3D12Resource* pBackBuffer = nullptr;
             pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
@@ -163,7 +166,7 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         ImGui::StyleColorsDark();
         if (!ImGui_ImplWin32_Init(hGameWindow) 
-            || !ImGui_ImplDX12_Init(g_device, bufferCount, 
+            || !ImGui_ImplDX12_Init(g_device, g_bufferCount,
                 DXGI_FORMAT_R8G8B8A8_UNORM, g_descriptorHeapRender,
                 g_descriptorHeapRender->GetCPUDescriptorHandleForHeapStart(),
                 g_descriptorHeapRender->GetGPUDescriptorHandleForHeapStart()))
@@ -222,6 +225,38 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
     g_commandList->Close();
     g_commandQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&g_commandList));
     return g_present(pSwapChain, SyncInterval, Flags);
+}
+
+HRESULT STDMETHODCALLTYPE hookDx12ResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+{
+    if (g_device == nullptr)
+    {
+        return g_resizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    }
+
+    LOG_INFO("hookDx12ResizeBuffer, window will resize,Width{}, Height:{}.\n", Width, Height);
+
+    // Release the previous resources we will be recreating.
+    for (UINT i = 0; i < g_bufferCount; i++)
+    {
+        g_frameContext[i].resource->Release();
+    }
+
+    HRESULT hr = g_resizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+
+    static const auto RTVDescriptorSize = g_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    D3D12_CPU_DESCRIPTOR_HANDLE RTVHandle = g_descriptorHeapBackBuffers->GetCPUDescriptorHandleForHeapStart();
+    for (UINT i = 0; i < g_bufferCount; i++)
+    {
+        ID3D12Resource* pBackBuffer = nullptr;
+        pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
+        g_device->CreateRenderTargetView(pBackBuffer, nullptr, RTVHandle);
+        g_frameContext[i].descriptorHandle = RTVHandle;
+        g_frameContext[i].resource = pBackBuffer;
+        RTVHandle.ptr += RTVDescriptorSize;
+    }
+
+    return hr;
 }
 
 void STDMETHODCALLTYPE hookExecuteCommandLists(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists)
@@ -322,6 +357,7 @@ bool threadStart(const ConfigData& config)
     // hook
     g_swapChainVtable = (std::uintptr_t*)swapChain;
     g_swapChainVtable = (std::uintptr_t*)g_swapChainVtable[0];
+    g_resizeBufferHook = (Dx12ResizeBufferHook)g_swapChainVtable[13];
     g_present = (Dx12Present)g_swapChainVtable[8];
 
     g_commandQueueVtable = (std::uintptr_t*)commandQueue;
@@ -331,6 +367,7 @@ bool threadStart(const ConfigData& config)
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     DetourAttach(&(PVOID&)g_present, hookPresent);
+    DetourAttach(&(PVOID&)g_resizeBufferHook, hookDx12ResizeBuffer);
     DetourAttach(&(PVOID&)g_executeCommandLists, hookExecuteCommandLists);
     DetourTransactionCommit();
 
