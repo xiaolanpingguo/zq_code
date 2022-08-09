@@ -5,6 +5,11 @@
 #include <dxgi1_4.h>
 #include <mutex>
 #include <thread>
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_dx12.h"
+#include "../imgui/imgui_impl_win32.h"
+#include "../log.h"
+
 #include "Detours/detours.h"
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -14,10 +19,6 @@
 #else
 #pragma comment(lib, "detours32.lib")
 #endif
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_impl_dx12.h"
-#include "../imgui/imgui_impl_win32.h"
-#include "../log.h"
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -26,14 +27,14 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace Dx12Hook {
 
 
-typedef HRESULT(STDMETHODCALLTYPE* Dx12Present) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
-Dx12Present g_present = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* PresentFun) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+PresentFun g_presentOriginal = nullptr;
 
-typedef void(STDMETHODCALLTYPE* Dx12ExecuteCommandLists)(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists);
-Dx12ExecuteCommandLists g_executeCommandLists = nullptr;
+typedef void(STDMETHODCALLTYPE* ExecuteCommandListsFun)(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists);
+ExecuteCommandListsFun g_executeCommandListsOriginal = nullptr;
 
-typedef HRESULT(STDMETHODCALLTYPE* Dx12ResizeBufferHook) (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
-Dx12ResizeBufferHook g_resizeBufferHook = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* ResizeBufferHookFun) (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+ResizeBufferHookFun g_resizeBufferOriginal = nullptr;
 
 struct FrameContext 
 {
@@ -50,9 +51,6 @@ ID3D12DescriptorHeap* g_descriptorHeapRender = nullptr;
 ID3D12GraphicsCommandList* g_commandList = nullptr;
 IDXGISwapChain3* g_swapChain3 = nullptr;
 UINT g_bufferCount = 0;
-
-std::uintptr_t* g_swapChainVtable = nullptr;
-std::uintptr_t* g_commandQueueVtable = nullptr;
 
 bool g_init = false;
 WNDPROC g_hGameWindowProc;
@@ -187,7 +185,7 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 
     if (!g_init || (g_commandQueue == nullptr))
     {
-        return g_present(pSwapChain, SyncInterval, Flags);
+        return g_presentOriginal(pSwapChain, SyncInterval, Flags);
     }
 
     ImGui_ImplDX12_NewFrame();
@@ -224,14 +222,14 @@ HRESULT WINAPI hookPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
     g_commandList->ResourceBarrier(1, &barrier);
     g_commandList->Close();
     g_commandQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(&g_commandList));
-    return g_present(pSwapChain, SyncInterval, Flags);
+    return g_presentOriginal(pSwapChain, SyncInterval, Flags);
 }
 
-HRESULT STDMETHODCALLTYPE hookDx12ResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+HRESULT STDMETHODCALLTYPE hookResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
     if (g_device == nullptr)
     {
-        return g_resizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+        return g_resizeBufferOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
     }
 
     LOG_INFO("hookDx12ResizeBuffer, window will resize,Width{}, Height:{}.\n", Width, Height);
@@ -242,7 +240,7 @@ HRESULT STDMETHODCALLTYPE hookDx12ResizeBuffer(IDXGISwapChain* pSwapChain, UINT 
         g_frameContext[i].resource->Release();
     }
 
-    HRESULT hr = g_resizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    HRESULT hr = g_resizeBufferOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 
     static const auto RTVDescriptorSize = g_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     D3D12_CPU_DESCRIPTOR_HANDLE RTVHandle = g_descriptorHeapBackBuffers->GetCPUDescriptorHandleForHeapStart();
@@ -266,7 +264,7 @@ void STDMETHODCALLTYPE hookExecuteCommandLists(ID3D12CommandQueue* queue, UINT N
         g_commandQueue = queue;
     }
 
-    g_executeCommandLists(queue, NumCommandLists, ppCommandLists);
+    g_executeCommandListsOriginal(queue, NumCommandLists, ppCommandLists);
 }
 
 LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -355,23 +353,24 @@ bool threadStart(const ConfigData& config)
     }
 
     // hook
-    g_swapChainVtable = (std::uintptr_t*)(*(std::uintptr_t*)swapChain);
-    g_resizeBufferHook = (Dx12ResizeBufferHook)g_swapChainVtable[13];
-    g_present = (Dx12Present)g_swapChainVtable[8];
+    std::uintptr_t* swapChainVtable = (std::uintptr_t*)(*(std::uintptr_t*)swapChain);
+    g_resizeBufferOriginal = (ResizeBufferHookFun)swapChainVtable[13];
+    g_presentOriginal = (PresentFun)swapChainVtable[8];
 
-    g_commandQueueVtable = (std::uintptr_t*)(*(std::uintptr_t*)commandQueue);
-    g_executeCommandLists = (Dx12ExecuteCommandLists)g_commandQueueVtable[10];
+    std::uintptr_t* commandQueueVtable = (std::uintptr_t*)(*(std::uintptr_t*)commandQueue);
+    g_executeCommandListsOriginal = (ExecuteCommandListsFun)commandQueueVtable[10];
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&(PVOID&)g_present, hookPresent);
-    DetourAttach(&(PVOID&)g_resizeBufferHook, hookDx12ResizeBuffer);
-    DetourAttach(&(PVOID&)g_executeCommandLists, hookExecuteCommandLists);
+    DetourAttach(&g_presentOriginal, hookPresent);
+    DetourAttach(&g_executeCommandListsOriginal, hookExecuteCommandLists);
+    DetourAttach(&g_resizeBufferOriginal, hookResizeBuffer);
     DetourTransactionCommit();
 
-    LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
-    LOG_INFO("g_swapChainVtable:     {}\n", (void*)g_swapChainVtable);
-    LOG_INFO("g_commandQueueVtable:  {}\n", (void*)g_commandQueueVtable);
+    LOG_INFO("BaseAddr:                     {}\n", (void*)GetModuleHandle(NULL));
+    LOG_INFO("g_resizeBufferOriginal:       {}\n", (void*)g_resizeBufferOriginal);
+    LOG_INFO("g_presentOriginal:            {}\n", (void*)g_presentOriginal);
+    LOG_INFO("g_executeCommandListsOriginal:{}\n", (void*)g_executeCommandListsOriginal);
 
     device->Release();
     commandQueue->Release();

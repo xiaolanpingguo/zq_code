@@ -2,6 +2,11 @@
 #include <Windows.h>
 #include <d3d9.h>
 #include <mutex>
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_dx9.h"
+#include "../imgui/imgui_impl_win32.h"
+#include "../log.h"
+
 #include "Detours/detours.h"
 #pragma comment(lib, "d3d9.lib")
 #ifdef _WIN64
@@ -9,10 +14,6 @@
 #else
 #pragma comment(lib, "detours32.lib")
 #endif
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_impl_dx9.h"
-#include "../imgui/imgui_impl_win32.h"
-#include "../log.h"
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -20,18 +21,17 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Dx9Hook {
 
-typedef HRESULT(__stdcall* D3D9PresentHook) (IDirect3DDevice9* pDevice, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
-D3D9PresentHook g_hookD3D9Present = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* PresentFun) (IDirect3DDevice9* pDevice, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
+PresentFun g_presentOriginal = nullptr;
 
-typedef HRESULT(__stdcall* D3D9ResetHook) (IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
-D3D9ResetHook g_resetHook = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* ResetFun) (IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
+ResetFun g_resetOriginal = nullptr;
 
-typedef HRESULT(__stdcall* D3D9EndSceneHook)(IDirect3DDevice9* pDevice);
-D3D9EndSceneHook g_endSceneHook = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* EndSceneFun)(IDirect3DDevice9* pDevice);
+EndSceneFun g_endSceneOriginal = nullptr;
 
-IDirect3D9* g_d3d = NULL;
-IDirect3DDevice9* g_device = NULL;
-std::uintptr_t* g_d3dDeviceVtable = nullptr;
+IDirect3D9* g_d3d = nullptr;
+IDirect3DDevice9* g_device = nullptr;
 bool g_init = false;
 WNDPROC g_gameWindowProc;
 Dx9Hook::ConfigData g_configData;
@@ -86,7 +86,7 @@ HRESULT WINAPI hookD3D9Present(IDirect3DDevice9* pDevice, CONST RECT* pSourceRec
 
     if (!g_init)
     {
-        return g_hookD3D9Present(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+        return g_presentOriginal(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
     }
 
     // custom rendering ---------------------------------------------
@@ -116,14 +116,14 @@ HRESULT WINAPI hookD3D9Present(IDirect3DDevice9* pDevice, CONST RECT* pSourceRec
         g_device->EndScene();
     }
 
-    return g_hookD3D9Present(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    return g_presentOriginal(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT WINAPI hookD3D9Reset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
     LOG_INFO("hookD3D9Reset, window will resize,Width{}, Height:{}.\n", pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
     ::ImGui_ImplDX9_InvalidateDeviceObjects();
-    const HRESULT hr = g_resetHook(pDevice, pPresentationParameters);
+    const HRESULT hr = g_resetOriginal(pDevice, pPresentationParameters);
     if (hr >= 0)
     {
         ::ImGui_ImplDX9_CreateDeviceObjects();
@@ -168,7 +168,7 @@ HRESULT WINAPI hookD3D9EndScene(IDirect3DDevice9* pDevice)
 
     if (!g_init)
     {
-        return g_endSceneHook(pDevice);
+        return g_endSceneOriginal(pDevice);
     }
 
     // custom rendering ---------------------------------------------
@@ -194,7 +194,7 @@ HRESULT WINAPI hookD3D9EndScene(IDirect3DDevice9* pDevice)
     g_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorwrite);
     g_device->SetRenderState(D3DRS_SRGBWRITEENABLE, srgbwrite);
 
-    return g_endSceneHook(pDevice);
+    return g_endSceneOriginal(pDevice);
 }
 
 LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -242,27 +242,27 @@ bool threadStart(const ConfigData& config)
     }
 
     // there are two ways draw imgui: hook EndScene and Present
-    g_d3dDeviceVtable = (std::uintptr_t*)(*(std::uintptr_t*)g_device);
-    g_hookD3D9Present = (D3D9PresentHook)g_d3dDeviceVtable[17];
-    g_resetHook = (D3D9ResetHook)g_d3dDeviceVtable[16];
-    g_endSceneHook = (D3D9EndSceneHook)g_d3dDeviceVtable[42];
+    std::uintptr_t* d3dDeviceVtable = (std::uintptr_t*)(*(std::uintptr_t*)device);
+    g_presentOriginal = (PresentFun)d3dDeviceVtable[17];
+    g_resetOriginal = (ResetFun)d3dDeviceVtable[16];
+    g_endSceneOriginal = (EndSceneFun)d3dDeviceVtable[42];
 
     d3d->Release();
     device->Release();
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    //DetourAttach(&(PVOID&)g_hookD3D9Present, hookD3D9Present);
-    DetourAttach(&(PVOID&)g_resetHook, hookD3D9Reset);
-    DetourAttach(&(PVOID&)g_endSceneHook, hookD3D9EndScene);
+    //DetourAttach(&g_presentOriginal, hookD3D9Present);
+    DetourAttach(&g_resetOriginal, hookD3D9Reset);
+    DetourAttach(&g_endSceneOriginal, hookD3D9EndScene);
     DetourTransactionCommit();
 
 
     LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
-    LOG_INFO("g_d3dDeviceVtable:    {}\n", (void*)g_d3dDeviceVtable);
-    LOG_INFO("g_hookD3D9Present:    {}\n", (void*)g_hookD3D9Present);
-    LOG_INFO("g_resetHook:          {}\n", (void*)g_resetHook);
-    LOG_INFO("g_endSceneHook:       {}\n", (void*)g_endSceneHook);
+    LOG_INFO("g_d3dDeviceVtable:    {}\n", (void*)d3dDeviceVtable);
+    LOG_INFO("g_hookD3D9Present:    {}\n", (void*)g_presentOriginal);
+    LOG_INFO("g_resetHook:          {}\n", (void*)g_resetOriginal);
+    LOG_INFO("g_endSceneHook:       {}\n", (void*)g_endSceneOriginal);
 
     while (true)
     {

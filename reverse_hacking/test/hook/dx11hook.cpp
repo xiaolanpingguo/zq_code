@@ -5,18 +5,20 @@
 #include <D3Dcompiler.h>
 #include <mutex>
 #include <thread>
-#include "Detours/detours.h"
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_dx11.h"
+#include "../imgui/imgui_impl_win32.h"
+#include "../log.h"
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3dcompiler.lib")
+
+
+#include "Detours/detours.h"
 #ifdef _WIN64
 #pragma comment(lib, "detours64.lib")
 #else
 #pragma comment(lib, "detours32.lib")
 #endif
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_impl_dx11.h"
-#include "../imgui/imgui_impl_win32.h"
-#include "../log.h"
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -25,13 +27,12 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace Dx11Hook {
 
 
-typedef HRESULT(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
-D3D11PresentHook g_hookD3D11Present = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* PresentFun) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+PresentFun g_presentOriginal = nullptr;
 
-typedef HRESULT(__stdcall* D3D11ResizeBufferHook) (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
-D3D11ResizeBufferHook g_resizeBufferHook = nullptr;
+typedef HRESULT(STDMETHODCALLTYPE* ResizeBufferFun) (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+ResizeBufferFun g_resizeBufferOriginal = nullptr;
 
-std::uintptr_t* g_swapChainVtable = nullptr;
 ID3D11Device* g_device = nullptr;
 ID3D11DeviceContext* g_context = nullptr;
 ID3D11RenderTargetView* g_renderTargetView = nullptr;
@@ -53,7 +54,7 @@ LRESULT CALLBACK hookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return CallWindowProc(g_gameWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+HRESULT STDMETHODCALLTYPE hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [&]()
@@ -116,7 +117,7 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 
     if (!g_init)
     {
-        return g_hookD3D11Present(pSwapChain, SyncInterval, Flags);
+        return g_presentOriginal(pSwapChain, SyncInterval, Flags);
     }
 
     // must call before drawing
@@ -136,14 +137,14 @@ HRESULT WINAPI hookD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    return g_hookD3D11Present(pSwapChain, SyncInterval, Flags);
+    return g_presentOriginal(pSwapChain, SyncInterval, Flags);
 }
 
-HRESULT WINAPI hookD3D11ResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+HRESULT STDMETHODCALLTYPE hookD3D11ResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
     if (g_device == nullptr)
     {
-        return g_resizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+        return g_resizeBufferOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
     }
 
     LOG_INFO("hookD3D11ResizeBufferm, window will resize,Width{}, Height:{}.\n", Width, Height);
@@ -153,7 +154,7 @@ HRESULT WINAPI hookD3D11ResizeBuffer(IDXGISwapChain* pSwapChain, UINT BufferCoun
         g_renderTargetView = nullptr;
     }
 
-    HRESULT hr = g_resizeBufferHook(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    HRESULT hr = g_resizeBufferOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 
     ID3D11Texture2D* pRenderTargetTexture = NULL;
     pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pRenderTargetTexture);
@@ -236,23 +237,23 @@ bool threadStart(const ConfigData& config)
         return false;
     }
 
-    g_swapChainVtable = (std::uintptr_t*)(*(std::uintptr_t*)swapChain);
-    g_hookD3D11Present = (D3D11PresentHook)g_swapChainVtable[8];
-    g_resizeBufferHook = (D3D11ResizeBufferHook)g_swapChainVtable[13];
+    std::uintptr_t* swapChainVtable = (std::uintptr_t*)(*(std::uintptr_t*)swapChain);
+    g_presentOriginal = (PresentFun)swapChainVtable[8];
+    g_resizeBufferOriginal = (ResizeBufferFun)swapChainVtable[13];
+
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&g_presentOriginal, hookD3D11Present);
+    DetourAttach(&g_resizeBufferOriginal, hookD3D11ResizeBuffer);
+    DetourTransactionCommit();
 
     device->Release();
     swapChain->Release();
     context->Release();
 
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&(PVOID&)g_hookD3D11Present, hookD3D11Present);
-    DetourAttach(&(PVOID&)g_resizeBufferHook, hookD3D11ResizeBuffer);
-    DetourTransactionCommit();
-
     LOG_INFO("BaseAddr:              {}\n", (void*)GetModuleHandle(NULL));
-    LOG_INFO("SwapChainVtable:       {}\n", (void*)g_swapChainVtable);
-    LOG_INFO("D3D11Present:          {}\n", (void*)g_hookD3D11Present);
+    LOG_INFO("g_presentOriginal:     {}\n", (void*)g_presentOriginal);
+    LOG_INFO("g_resizeBufferOriginal:{}\n", (void*)g_resizeBufferOriginal);
 
     while (true)
     {

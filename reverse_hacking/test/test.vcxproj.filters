@@ -95,6 +95,9 @@
     <ClInclude Include="hook\dx12hook.h">
       <Filter>hook</Filter>
     </ClInclude>
+    <ClInclude Include="hook\vftable_hook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="hook">

@@ -8,8 +8,8 @@
 #include "imgui/imgui.h"
 
 
-//#define DX9_HOOK
-#define DX11_HOOK
+#define DX9_HOOK
+//#define DX11_HOOK
 //#define DX12_HOOK
 
 #ifdef DX9_HOOK
