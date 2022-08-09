@@ -3,6 +3,7 @@
 #include <vector>
 #include <array> // patten
 #include <tlhelp32.h> // module
+#include <winternl.h> // hideThread
 
 
 
@@ -39,16 +40,6 @@ bool Utils::getModule(DWORD pid, const wchar_t* name, ModuleData* modudleData)
 	}
 
 	return false;
-}
-
-void Utils::outputDebug(const char* pszFormat, ...)
-{
-	char buf[1024];
-	va_list argList;
-	va_start(argList, pszFormat);
-	vsprintf_s(buf, pszFormat, argList);
-	::OutputDebugStringA(buf);
-	va_end(argList);
 }
 
 bool Utils::worldToSceenDX(const float matrix[16], const float worldPos[3], int windoww, int windowh, int& screenx, int& screeny)
@@ -376,26 +367,20 @@ HWND Utils::findWindowByPid(DWORD pid, const char* className)
 
 bool Utils::hideThread(HANDLE hThread)
 {
-    __try
+    using FnSetInformationThread = NTSTATUS(NTAPI*)(HANDLE, THREADINFOCLASS, PVOID, ULONG);
+    const auto NtSetInformationThread{ reinterpret_cast<FnSetInformationThread>(::GetProcAddress(::GetModuleHandle(L"ntdll.dll"), "NtSetInformationThread")) };
+    if (NtSetInformationThread == nullptr)
     {
-        using FnSetInformationThread = NTSTATUS(NTAPI*)(HANDLE, UINT, PVOID, ULONG);
-        const auto NtSetInformationThread{ reinterpret_cast<FnSetInformationThread>(::GetProcAddress(::GetModuleHandle(L"ntdll.dll"), "NtSetInformationThread")) };
-        if (NtSetInformationThread == nullptr)
-        {
-            return false;
-        }
-
-        const auto status = NtSetInformationThread(hThread, 0x11u, NULL, 0ul);
-        if (status == 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
     }
-    __except (1)
+
+    // ThreadHideFromDebugger:0x11 
+    // it mean any exceptions skip the debugger and either hit SEH or explode and crash the app
+    if (SUCCEEDED(NtSetInformationThread(hThread, (THREADINFOCLASS)0x11, NULL, 0)))
+    {
+        return true;
+    }
+    else
     {
         return false;
     }

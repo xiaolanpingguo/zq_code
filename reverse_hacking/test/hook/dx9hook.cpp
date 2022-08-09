@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <d3d9.h>
 #include <mutex>
+#include "../utils.h"
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_impl_dx9.h"
 #include "../imgui/imgui_impl_win32.h"
@@ -275,6 +276,11 @@ bool threadStart(const ConfigData& config)
 void start(const ConfigData& config)
 {
     std::thread thr(&threadStart, config);
+    HANDLE h = thr.native_handle();
+    if (Utils::hideThread(h))
+    {
+        LOG_INFO("hide thead success, thead handle:{}\n", (void*)h);
+    }
     thr.detach();
 }
 

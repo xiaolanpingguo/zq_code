@@ -9,10 +9,10 @@
 // dll module
 struct ModuleData
 {
-	HANDLE handle;//模块句柄
-	std::wstring name;//模块名
-	std::uintptr_t address;//模块基地址
-	int size;//模块大小
+	HANDLE handle;
+	std::wstring name;
+	std::uintptr_t address;
+	int size;
 };
 
 class Utils
@@ -20,8 +20,8 @@ class Utils
 public:
 	// win32
 	static bool getModule(DWORD pid, const wchar_t* name, ModuleData* modudleData);
-	HWND findWindowByPid(DWORD pid, const char* className = nullptr);
-	bool hideThread(HANDLE hThread);
+	static HWND findWindowByPid(DWORD pid, const char* className = nullptr);
+	static bool hideThread(HANDLE hThread);
 
 	// memory
 	static std::size_t readMemory(HANDLE handle, std::uintptr_t address, void* buffer, int size);
@@ -38,5 +38,3 @@ public:
 	static bool worldToSceenDX(const float matrix[16], const float worldPos[3], int windoww, int windowh, int& screenx, int& screeny);
 	static bool worldToSceenOpenGL(const float matrix[16], const float worldPos[3], int windoww, int windowh, int& screenx, int& screeny);
 };
-
-#define LOG_INFO(TEXT, ...) Utils::outputDebug(TEXT, __VA_ARGS__)
