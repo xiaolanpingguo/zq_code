@@ -30,6 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{0E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "projects", "projects", "{04C4CB17-769D-4A8B-8189-EF5BAC2D9F6C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csgo", "projects\csgo\csgo.vcxproj", "{DAF5F6DA-45F1-4B27-810E-687A93251702}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4F09F71B-E1A6-4976-8B29-5B493077B9A0} = {4F09F71B-E1A6-4976-8B29-5B493077B9A0}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -86,6 +91,14 @@ Global
 		{1F28424B-D45C-4B3C-BD2A-D92123A7000D}.Release|x64.Build.0 = Release|x64
 		{1F28424B-D45C-4B3C-BD2A-D92123A7000D}.Release|x86.ActiveCfg = Release|Win32
 		{1F28424B-D45C-4B3C-BD2A-D92123A7000D}.Release|x86.Build.0 = Release|Win32
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Debug|x64.ActiveCfg = Debug|x64
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Debug|x64.Build.0 = Debug|x64
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Debug|x86.ActiveCfg = Debug|Win32
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Debug|x86.Build.0 = Debug|Win32
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Release|x64.ActiveCfg = Release|x64
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Release|x64.Build.0 = Release|x64
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Release|x86.ActiveCfg = Release|Win32
+		{DAF5F6DA-45F1-4B27-810E-687A93251702}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +110,7 @@ Global
 		{804946E2-BEB5-46FA-B75C-CFB3756DE586} = {0E8FFE91-19D5-4450-9659-2C068022361F}
 		{9C029289-74E4-4B6A-9C44-7588B1035CB9} = {0E8FFE91-19D5-4450-9659-2C068022361F}
 		{1F28424B-D45C-4B3C-BD2A-D92123A7000D} = {0E8FFE91-19D5-4450-9659-2C068022361F}
+		{DAF5F6DA-45F1-4B27-810E-687A93251702} = {04C4CB17-769D-4A8B-8189-EF5BAC2D9F6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9FFD2E2E-8C92-4A66-B6BE-C13A0E7BFEF4}

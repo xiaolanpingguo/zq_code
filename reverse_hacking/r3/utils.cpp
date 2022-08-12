@@ -7,9 +7,9 @@
 
 
 
-bool Utils::getModule(DWORD pid, const wchar_t* name, ModuleData* modudleData)
+bool Utils::getModule(DWORD pid, std::wstring_view name, ModuleData* modudleData)
 {
-	if (modudleData == nullptr || name == nullptr)
+	if (modudleData == nullptr || name.empty())
 	{
 		return false;
 	}
@@ -25,7 +25,7 @@ bool Utils::getModule(DWORD pid, const wchar_t* name, ModuleData* modudleData)
 	BOOL state = Module32First(hand, &moduleInfo);
 	while (state) 
 	{
-		if (wcsncmp(moduleInfo.szModule, name, wcslen(name)) == 0)
+		if (std::wstring_view(moduleInfo.szModule) == name)
 		{		
 			modudleData->size = moduleInfo.modBaseSize;
 			modudleData->address = (std::uintptr_t)moduleInfo.modBaseAddr;
@@ -333,7 +333,7 @@ std::uintptr_t Utils::findPatternInMemory(HANDLE hPorcess, std::uintptr_t start,
 	return 0;
 }
 
-HWND Utils::findWindowByPid(DWORD pid, const char* className)
+HWND Utils::findWindowByPid(DWORD pid, std::string_view className)
 {
     HWND hCurWnd = GetTopWindow(0);
     while (hCurWnd != NULL)
@@ -343,7 +343,7 @@ HWND Utils::findWindowByPid(DWORD pid, const char* className)
 
         if (cur_pid == pid)
         {
-			if (className == nullptr)
+			if (className.empty())
 			{
 				return hCurWnd;
 			}
@@ -352,7 +352,7 @@ HWND Utils::findWindowByPid(DWORD pid, const char* className)
             {
                 char szClassName[256];
                 GetClassNameA(hCurWnd, szClassName, 256);
-                if (strcmp(szClassName, className) == 0)
+                if (std::string_view(szClassName) == className)
                 {
                     return hCurWnd;
                 }

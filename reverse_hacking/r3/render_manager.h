@@ -24,8 +24,8 @@ public:
     ~RenderManager();
 	
 	bool init(const RenderConfig& config);
-	bool run();
-	void stop();
+	bool render();
+	bool shutdown();
 
 	void drawStrokeText(float x, float y, std::uint32_t color, const char* str);
 	void drawNewText(float x, float y, std::uint32_t color, const char* str);
@@ -40,8 +40,6 @@ public:
 private:
 
 	static LRESULT WINAPI wndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-	bool shutdown();
 
 	bool initImgui();
 	bool createDeviceD3D();
@@ -58,7 +56,6 @@ private:
 	ID3D11RenderTargetView* m_mainRenderTargetView;
 
 	float m_clearColor[4];
-	bool m_running;
 	RenderConfig m_config;
 };
 

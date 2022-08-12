@@ -52,7 +52,11 @@ int main()
     };
 
     g_renderManager.init(config);
-    g_renderManager.run();
+
+    while (1)
+    {
+        g_renderManager.render();
+    }
 
     return 0;
 }

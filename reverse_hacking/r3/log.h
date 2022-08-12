@@ -48,6 +48,27 @@ public:
         ::OutputDebugStringA(str.c_str());
     }
 
+    template <typename ...Args>
+    void LogMsg(std::wstring_view formatStr, Args&& ...args)
+    {
+        std::wstring str = std::format(formatStr, std::forward<Args>(args)...);
+        if (!m_enableConsole)
+        {
+            ::OutputDebugStringW(str.c_str());
+            return;
+        }
+
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        fprintf(stdout, "[");
+        SetConsoleTextAttribute(hConsole, 11);
+        fprintf(stdout, "Log:");
+        SetConsoleTextAttribute(hConsole, 7);
+        fprintf(stdout, "] %ls", str.c_str());
+
+        ::OutputDebugStringW(str.c_str());
+    }
+
 private:
     bool m_enableConsole = false;
 };

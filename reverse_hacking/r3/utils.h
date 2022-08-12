@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <string>
+#include <string_view>
 #include <vector>
 
 
@@ -19,8 +20,8 @@ class Utils
 {
 public:
 	// win32
-	static bool getModule(DWORD pid, const wchar_t* name, ModuleData* modudleData);
-	static HWND findWindowByPid(DWORD pid, const char* className = nullptr);
+	static bool getModule(DWORD pid, std::wstring_view name, ModuleData* modudleData);
+	static HWND findWindowByPid(DWORD pid, std::string_view className = nullptr);
 	static bool hideThread(HANDLE hThread);
 
 	// memory

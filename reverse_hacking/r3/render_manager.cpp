@@ -64,7 +64,6 @@ RenderManager::RenderManager()
     , m_d3dDeviceContext(nullptr)
     , m_swapChain(nullptr)
     , m_mainRenderTargetView(nullptr)
-    , m_running(false)
 {
     m_clearColor[0] = m_clearColor[1] = m_clearColor[2] = m_clearColor[3] = 0.0f;
 }
@@ -155,58 +154,48 @@ bool RenderManager::init(const RenderConfig& config)
     ::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
     ::UpdateWindow(m_hWnd);
 
-    m_running = true;
     return true;
 }
 
-bool RenderManager::run()
+bool RenderManager::render()
 {
-    while (m_running)
+    // Poll and handle messages (inputs, window resize, etc.)
+    // See the WndProc() function below for our to dispatch events to the Win32 backend.
+    MSG msg;
+    while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
     {
-        // Poll and handle messages (inputs, window resize, etc.)
-        // See the WndProc() function below for our to dispatch events to the Win32 backend.
-        MSG msg;
-        while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
+        if (msg.message == WM_QUIT)
         {
-            ::TranslateMessage(&msg);
-            ::DispatchMessage(&msg);
-            if (msg.message == WM_QUIT)
-            {
-                m_running = false;
-            }
+            //m_running = false;
         }
-        if (!m_running)
-        {
-            break;
-        }
+    }
+    //if (!m_running)
+    //{
+    //    break;
+    //}
 
-        // Start the Dear ImGui frame
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
-        if (m_config.customDraw)
-        {
-            m_config.customDraw();
-        }
-
-        // Rendering
-        ImGui::Render();
-        m_d3dDeviceContext->OMSetRenderTargets(1, &m_mainRenderTargetView, NULL);
-        m_d3dDeviceContext->ClearRenderTargetView(m_mainRenderTargetView, m_clearColor);
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-        m_swapChain->Present(1, 0); // Present with vsync
-        //g_pSwapChain->Present(0, 0); // Present without vsync
+    if (m_config.customDraw)
+    {
+        m_config.customDraw();
     }
 
-    shutdown();
-    return true;
-}
+    // Rendering
+    ImGui::Render();
+    m_d3dDeviceContext->OMSetRenderTargets(1, &m_mainRenderTargetView, NULL);
+    m_d3dDeviceContext->ClearRenderTargetView(m_mainRenderTargetView, m_clearColor);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-void RenderManager::stop()
-{
-    m_running = false;
+    m_swapChain->Present(1, 0); // Present with vsync
+    //g_pSwapChain->Present(0, 0); // Present without vsync
+
+    return true;
 }
 
 bool RenderManager::shutdown()
