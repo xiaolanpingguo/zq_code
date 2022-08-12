@@ -1,9 +1,9 @@
 #include <windows.h>
 #include <thread>
 #include <clocale>
-#include "hook/dx11hook.h"
-#include "log.h"
-#include "imgui/imgui.h"
+#include "r3/hook/dx11hook.h"
+#include "r3/log.h"
+#include "r3/imgui/imgui.h"
 
 int main()
 {

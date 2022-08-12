@@ -2,13 +2,13 @@
 #include <Windows.h>
 #include <d3d9.h>
 #include <mutex>
-#include "../utils.h"
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_impl_dx9.h"
-#include "../imgui/imgui_impl_win32.h"
-#include "../log.h"
+#include "r3/utils.h"
+#include "r3/imgui/imgui.h"
+#include "r3/imgui/imgui_impl_dx9.h"
+#include "r3/imgui/imgui_impl_win32.h"
+#include "r3/log.h"
 
-#include "Detours/detours.h"
+#include "r3/hook/Detours/detours.h"
 #pragma comment(lib, "d3d9.lib")
 #ifdef _WIN64
 #pragma comment(lib, "detours64.lib")
