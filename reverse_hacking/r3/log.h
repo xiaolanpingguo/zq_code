@@ -22,56 +22,48 @@ public:
         FreeConsole();
         AllocConsole();
         SetConsoleTitleA("Log Debug Window");
-        FILE* file = NULL;
-        freopen_s(&file, "CON", "w", stdout);
         m_enableConsole = true;
     }
 
-    template <typename ...Args>
-    void LogMsg(std::string_view formatStr, Args&& ...args)
-    {
-        std::string str = std::format(formatStr, std::forward<Args>(args)...);
-        if (!m_enableConsole)
-        {
-            ::OutputDebugStringA(str.c_str());
-            return;
-        }
+	void logMsg(std::string&& str)
+	{
+		::OutputDebugStringA(str.c_str());
+		if (m_enableConsole)
+		{
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			fprintf(stdout, "[");
+			SetConsoleTextAttribute(hConsole, 11);
+			fprintf(stdout, "Log:");
+			SetConsoleTextAttribute(hConsole, 7);
+			fprintf(stdout, "] %s", str.c_str());
+		}
+	}
 
-        fprintf(stdout, "[");
-        SetConsoleTextAttribute(hConsole, 11);
-        fprintf(stdout, "Log:");
-        SetConsoleTextAttribute(hConsole, 7);
-        fprintf(stdout, "] %s", str.c_str());
+	void logMsg(std::wstring&& str)
+	{
+		::OutputDebugStringW(str.c_str());
+		if (m_enableConsole)
+		{
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        ::OutputDebugStringA(str.c_str());
-    }
-
-    template <typename ...Args>
-    void LogMsg(std::wstring_view formatStr, Args&& ...args)
-    {
-        std::wstring str = std::format(formatStr, std::forward<Args>(args)...);
-        if (!m_enableConsole)
-        {
-            ::OutputDebugStringW(str.c_str());
-            return;
-        }
-
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-        fprintf(stdout, "[");
-        SetConsoleTextAttribute(hConsole, 11);
-        fprintf(stdout, "Log:");
-        SetConsoleTextAttribute(hConsole, 7);
-        fprintf(stdout, "] %ls", str.c_str());
-
-        ::OutputDebugStringW(str.c_str());
-    }
+			fprintf(stdout, "[");
+			SetConsoleTextAttribute(hConsole, 11);
+			fprintf(stdout, "Log:");
+			SetConsoleTextAttribute(hConsole, 7);
+			fprintf(stdout, "] %ls", str.c_str());
+		}
+	}
 
 private:
     bool m_enableConsole = false;
 };
 
+#ifdef DEBUG
 #define LOG_ENABLE_CONSOLE() Log::getInstance().enableConsole()
-#define LOG_INFO(TEXT, ...)  Log::getInstance().LogMsg(TEXT, __VA_ARGS__)
+#define LOG_INFO(TEXT, ...)  Log::getInstance().logMsg(std::move(std::format(TEXT, __VA_ARGS__)))
+#else
+#define LOG_ENABLE_CONSOLE() 
+#define LOG_INFO(TEXT, ...)  Log::getInstance().logMsg(std::move(std::format(TEXT, __VA_ARGS__)))
+#endif
+

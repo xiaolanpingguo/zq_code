@@ -1,4 +1,4 @@
-﻿#include "csgo.h"
+#include "csgo.h"
 #include "csgo_def.h"
 #include "r3/log.h"
 #include "r3/utils.h"
@@ -15,45 +15,32 @@ static constexpr const std::wstring_view CSGO_WINDOW_TITLE_NAME1 = L"Counter-Str
 static constexpr const std::wstring_view CSGO_WINDOW_TITLE_NAME2 = L"Counter-Strike: Global Offensive";
 static constexpr const std::wstring_view CSGO_PROCESS_NAME = L"csgo.exe";
 
-std::atomic<bool> CSGO::m_stop = false;
+
+
 CSGO::CSGO()
-	: m_appInstance(nullptr)
-	, m_gameWnd(nullptr)
-	, m_mainWnd(nullptr)
+	: m_gameWnd(nullptr)
 	, m_gameHandle(nullptr)
 	, m_gamePid(0)
 	, m_esp(true)
 	, m_aimbot(false)
-	, m_renderManager(new RenderManager())
+	, m_localPlayer(nullptr)
 {
-	m_localPlayer = nullptr;
 }
 
 CSGO::~CSGO()
 {
-	delete m_renderManager;
 }
 
 bool CSGO::init()
 {
-    /*if (!getGameProcess())
+	LOG_ENABLE_CONSOLE();
+    if (!initGameModule())
     {
-        MessageBox(nullptr, TEXT("获取游戏窗口失败"), TEXT("提示"), MB_OK);
+        MessageBox(nullptr, TEXT("can't find game module"), TEXT("error"), MB_OK);
         return false;
     }
 
-    if (!initGameModule())
-    {
-        MessageBox(nullptr, TEXT("初始化游戏模块失败"), TEXT("提示"), MB_OK);
-        return false;
-    }*/
-
-    RenderConfig config
-    {
-        std::bind(&CSGO::gameDraw, this), 800, 600, true, L"csgo"
-    };
-
-	if (!m_renderManager->init(config))
+	if (!Application::init())
 	{
         MessageBox(nullptr, TEXT("render manager init failed"), TEXT("error"), MB_OK);
         return false;
@@ -62,13 +49,20 @@ bool CSGO::init()
 	return true;
 }
 
-bool CSGO::isRunning()
+void CSGO::run()
 {
-	return !m_stop;
+	Application::run();
 }
+
 
 bool CSGO::initGameModule()
 {
+	if (!getGameProcess())
+	{
+		MessageBox(nullptr, TEXT("can't find game process"), TEXT("error"), MB_OK);
+		return false;
+	}
+
 	if (!Utils::getModule(m_gamePid, CSGO_CLIENT_DLL_NAME, &m_clientModule))
 	{
 		LOG_INFO(L"get module: {} faild!\n", CSGO_CLIENT_DLL_NAME);
@@ -102,52 +96,58 @@ bool CSGO::initGameModule()
 	return true;
 }
 
-void CSGO::stop()
+ApplicationConfig CSGO::getApplicationConfig()
 {
-	m_stop = true;
+	return ApplicationConfig{ std::bind(&CSGO::drawGame, this), 800, 600, L"test", true, };
 }
 
-void CSGO::run()
+void CSGO::update()
 {
-	MSG msg = { 0 };
-	while (!m_stop)
+	if (isGameQuit())
 	{
-		// we use PeekMessage instead of GetMessage here
-		// because we should not block the thread at anywhere
-		// except the engine execution driver module
-		//if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
-		//{
-		//	TranslateMessage(&msg);
-		//	DispatchMessage(&msg);
-		//	if (msg.message == WM_QUIT)
-		//	{
-		//		m_stop = true;
-		//	}
-		//}
-
-		//adjustWindow();
-		updateGame();
-		m_renderManager->render();
-
-		Sleep(1);
+		stop();
+		return;
 	}
 
-	m_renderManager->shutdown();
+	adjustWindow();
+
+	std::vector<Player*> allPlayers;
+	readGameMemory(allPlayers);
+	updateESP(allPlayers);
+	updateAimBot(allPlayers);
 }
 
-void CSGO::updateGame()
+void CSGO::shutdown()
+{
+	if (m_gameHandle)
+	{
+		::CloseHandle(m_gameHandle);
+	}
+
+	Application::shutdown();
+}
+
+bool CSGO::isGameQuit()
+{
+	HWND gameWnd = ::FindWindowW(NULL, CSGO_WINDOW_TITLE_NAME1.data());
+	if (gameWnd == nullptr)
+	{
+		gameWnd = ::FindWindowW(NULL, CSGO_WINDOW_TITLE_NAME2.data());
+		if (gameWnd == nullptr)
+		{
+			LOG_INFO("game has quit!\n");
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void CSGO::readGameMemory(std::vector<Player*>& allPlayers)
 {
 	// get view projection matrix
 	if (!Utils::readMemory(m_gameHandle, m_matrixAddress, m_viewProMatrix, sizeof(m_viewProMatrix)))
 	{
-		//LOG_INFO("matrix: %f, %f, %f, %f, \n"
-		//	"%f, %f, %f, %f, \n"
-		//	"%f, %f, %f, %f, \n"
-		//	"%f, %f, %f, %f, \n",
-		//	matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
-		//	matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
-		//	matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
-		//	matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
 		return;
 	}
 
@@ -158,8 +158,6 @@ void CSGO::updateGame()
 		return;
 	}
 
-	std::vector<Player*> enemies;
-	std::vector<Player*> allPlayers;
 	for (size_t i = 0; i < m_allPlayers.size(); ++i)
 	{
 		Player& player = m_allPlayers[i];
@@ -197,11 +195,8 @@ void CSGO::updateGame()
 
 	if (m_localPlayer == nullptr)
 	{
-		return;
+		allPlayers.clear();
 	}
-
-	updateESP(allPlayers);
-	updateAimBot(allPlayers);
 }
 
 bool CSGO::getGameProcess()
@@ -237,7 +232,7 @@ bool CSGO::getGameProcess()
 
 void CSGO::adjustWindow()
 {
-	if (m_mainWnd == nullptr)
+	if (m_hWnd == nullptr)
 	{
 		return;
 	}
@@ -261,12 +256,47 @@ void CSGO::adjustWindow()
 		h -= 23;
 	}
 
-	MoveWindow(m_mainWnd, left, top, w, h, true);
+	MoveWindow(m_hWnd, left, top, w, h, true);
 }
 
-void CSGO::gameDraw()
+void CSGO::drawGame()
 {
+	drawUI();
 	drawESP();
+}
+
+void CSGO::drawUI()
+{
+	static bool showMenu = true;
+	if (GetAsyncKeyState(VK_INSERT) & 1)
+	{
+		showMenu = !showMenu;
+	}
+
+	if (!showMenu)
+	{
+		// 因为在menu显示的情况下imgui需要响应点击事件，因此就不能设置WS_EX_TRANSPARENT属性。
+		// 但是测试发现，如果没有WS_EX_TRANSPARENT标志位，会产生另个问题：光标会不时的闪烁。因此不显示menu的情况下，
+		// 这里重新加上WS_EX_TRANSPARENT标志以修复这个问题
+		::SetWindowLong(m_hWnd, GWL_EXSTYLE, WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+		return;
+	}
+
+	::SetWindowLong(m_hWnd, GWL_EXSTYLE, WS_EX_TOPMOST | WS_EX_LAYERED);
+
+	static float f = 0.0f;
+	static int counter = 0;
+
+	ImGui::Begin("--按Ins键隐藏窗口--");
+
+	ImGui::Checkbox("--透视--", &m_esp);
+	ImGui::Checkbox("--自瞄--", &m_aimbot);
+	if (ImGui::Button("--退出--"))
+	{
+		stop();
+	}
+
+	ImGui::End();
 }
 
 void CSGO::drawESP()
@@ -276,35 +306,18 @@ void CSGO::drawESP()
 		return;
 	}
 
-    m_renderManager->drawStrokeText(50, 50, IM_COL32(255, 0, 0, 255), "StrokeText");
-	m_renderManager->drawNewText(80, 80, IM_COL32(255, 0, 0, 255), "NewText");
-	m_renderManager->drawRect(200, 200, 100, 100, IM_COL32(255, 0, 0, 255));
-	m_renderManager->drawLine(200, 200, 100, 100, IM_COL32(255, 0, 0, 255));
+	for (size_t i = 0; i < m_espData.data.size(); ++i)
+	{
+		ESPData::RenderData& espData = m_espData.data[i];
 
-	//for (size_t i = 0; i < m_espData.data.size(); ++i)
-	//{
-	//	ESPData::RenderData& espData = m_espData.data[i];
-
-	//	if (espData.color == ESPData::s_redRectangle)
-	//	{
-	//		//设置字体颜色
-	//		SetTextColor(hdc, ESPData::s_redRectangle);
-	//		FrameRect(hdc, &espData.rect, redb);
-	//	}
-	//	else if (espData.color == ESPData::s_blueRectangle)
-	//	{
-	//		//设置字体颜色
-	//		SetTextColor(hdc, ESPData::s_blueRectangle);
-	//		FrameRect(hdc, &espData.rect, blueb);
-	//	}
-
-	//	int fontx = (int)(espData.rect.left + (espData.rect.right - espData.rect.left) * 0.5);
-	//	int fonty = espData.rect.top;
-	//	if (fontx != 0 && fonty != 0)
-	//	{
-	//		TextOutA(hdc, fontx, fonty, espData.textHP.c_str(), espData.textHP.length());
-	//	}
-	//}
+		m_renderManager->drawRect(espData.x1, espData.y1, espData.x2, espData.y2, espData.color);
+		float fontx = espData.x1 + (espData.x2 - espData.x1) * 0.5f;
+		float fonty = espData.y1;
+		if (fontx != 0 && fonty != 0)
+		{
+			m_renderManager->drawNewText(fontx, fonty, espData.color, espData.textHP);
+		}
+	}
 
 	m_espData.clear();
 }
@@ -324,7 +337,7 @@ bool CSGO::updateGameSignature()
 		Utils::readMemory(m_gameHandle, readAddr, &targetAddr, sizeof(targetAddr));
 
 		m_teamAddress = targetAddr + 0x10; // 找的这个特征码不太好，需要额外加上0x10
-		LOG_INFO("found m_teamAddress:%x, offset:%x!\n", m_teamAddress, m_teamAddress - m_clientModule.address);
+		LOG_INFO("found m_teamAddress:{:x}, offset:{:x}!\n", m_teamAddress, m_teamAddress - m_clientModule.address);
 	}
 	{
 		m_matrixAddress = m_clientModule.address + ENGINE_CAMERA_MATRIX;
@@ -352,8 +365,8 @@ bool CSGO::readGameGlobalData()
 	m_viewAngleAddress = angleBase + ENGINE_VISUAL_VIEW_ANGLE;
 	m_localPlayerAddress = m_clientModule.address + LOCAL_PLAYER;
 
-	LOG_INFO("CSGOGameManager::init success!,client.dll base: %x!, server.dll base:%x, engine.dll base:%x, team address:%x, matrix address:%x, "
-		"m_viewAddress:%x, pitch:%f, yaw:%f\n",
+	LOG_INFO("CSGOGameManager::init success!,client.dll base: {:x}!, server.dll base:{:x}, engine.dll base:{:x}, team address:{:x}, matrix address:{:x},"
+		"m_viewAddress:{:x}, pitch:{}, yaw:{}\n",
 		m_clientModule.address, m_serverModule.address, m_engineModule.address, 
 		m_teamAddress, m_matrixAddress, m_viewAngleAddress, viewhAngle[0], viewhAngle[1]);
 
@@ -362,7 +375,7 @@ bool CSGO::readGameGlobalData()
 
 void CSGO::updateESP(const std::vector<Player*>& allPlayers)
 {
-	if (!m_esp)
+	if (!m_esp || m_localPlayer == nullptr)
 	{
 		return;
 	}
@@ -386,14 +399,14 @@ void CSGO::updateESP(const std::vector<Player*>& allPlayers)
 		Utils::worldToSceenDX(m_viewProMatrix, player.pos, m_gameWindowWidth, m_gameWindowHeight, screenx, screeny);
 
 		int playerHeight = screeny - screenSkeletonHeady;
-		int playerWidth = int(playerHeight / 2); // 假设人物的模型宽度是身高的一半
-		int extra = playerHeight / 6;  // 目前位置大概是嘴唇位置，增加少许高度把矩阵上边画在超过头的位置
+		float playerWidth = (float)playerHeight / 2.f; // 假设人物的模型宽度是身高的一半
+		float extra = playerHeight / 6.f;  // 目前位置大概是嘴唇位置，增加少许高度把矩阵上边画在超过头的位置
 		ESPData::RenderData esp;
-		esp.rect.left = screenx - playerWidth / 2;
-		esp.rect.top = screenSkeletonHeady - extra; //(screenSkeletonHeady - extra) < 0 ? 0 : screenSkeletonHeady - extra;
-		esp.rect.right = esp.rect.left + playerWidth;
-		esp.rect.bottom = esp.rect.top + playerHeight + extra;
-		esp.color = m_localPlayer->team == player.team ? ESPData::s_blueRectangle : ESPData::s_redRectangle;
+		esp.x1 = screenx - playerWidth / 2.f;
+		esp.y1 = screenSkeletonHeady - extra; //(screenSkeletonHeady - extra) < 0 ? 0 : screenSkeletonHeady - extra;
+		esp.x2 = esp.x1+ playerWidth;
+		esp.y2 = esp.y1 + playerHeight + extra;
+		esp.color = m_localPlayer->team == player.team ? Color::BLUE : Color::RED;
 		esp.textHP = std::to_string(player.hp);
 
 		m_espData.data.push_back(esp);
@@ -402,7 +415,7 @@ void CSGO::updateESP(const std::vector<Player*>& allPlayers)
 
 void CSGO::updateAimBot(const std::vector<Player*>& allPlayers)
 {
-	if (!m_aimbot)
+	if (!m_aimbot || m_localPlayer == nullptr)
 	{
 		return;
 	}

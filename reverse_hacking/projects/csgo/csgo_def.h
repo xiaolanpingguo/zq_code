@@ -4,31 +4,31 @@
 #include <vector>
 
 
-// ÈËÎïÊý×é»ùÖ·
-// ÌØÕ÷Âë£ºEB ?? 8B4B ?? 83F9 FF 74 ?? 0FB7C1C1E0 ?? 05 ??
-#define TEAMS_BASE				0x4DDB8FC
+// äººç‰©æ•°ç»„åŸºå€
+// ç‰¹å¾ç ï¼šEB ?? 8B4B ?? 83F9 FF 74 ?? 0FB7C1C1E0 ?? 05 ??
+#define TEAMS_BASE				0x4DDB91C
 
-// ÈËÎïÊý×é£¬Ã¿¸öÈËÎïÔªËØµÄ¼ä¸ôÊÇ0x10¸ö×Ö½Ú
+// äººç‰©æ•°ç»„ï¼Œæ¯ä¸ªäººç‰©å…ƒç´ çš„é—´éš”æ˜¯0x10ä¸ªå­—èŠ‚
 #define PLAYERS_ARRAY_OFFSET	0x10
 
-// ÈËÎï½á¹¹Ìå
-#define PLAYER_HP													0x100	// ÑªÁ¿Æ«ÒÆ,DWORD
-#define PLAYER_POS													0xA0	// ×ø±êÆ«ÒÆ£¬float
-#define PLAYER_TEAM_FLAG											0xf4	// team±êÖ¾Î»£¬DWORD
-#define PLAYER_MIRRO												0x31f4	// ÊÇ·ñ¿ª¾µ, DWORD, ´ó¾ÑÒ»±¶¾µÊÇ40£¬¶þ±¶¾µÊÇ10£¬Ä¬ÈÏÊÇ0»òÕß90
-#define PLAYER_COMMAND												0x300C	// ¶¯×÷ÀàÐÍ(¿ªÇ¹£¬¹¥»÷£¬ÌøÔ¾µÈ£¬32Î»£¬Ã¿Ò»Î»´ú±íÒ»¸öÀàÐÍ£¬µÚÒ»Î»ÊÇ¹¥»÷)
-#define PLAYER_PITCH												0x12C	// ¸©Ñö½Ç, float, ÍùÉÏ-89¶È-ÍùÏÂ89¶È(²»ÄÜÐÞ¸Ä)
-#define PLAYER_YAW													0x130	// Æ«º½½Ç£¬float, ½Ç¶È£¬0-360¶È(²»ÄÜÐÞ¸Ä)
-#define PLAYER_SKELETON_BASE										0x26a8	// ¹Ç÷ÀµØÖ·Æ«ÒÆ
-#define PLAYER_SKELETON_HEAD_X										0x18c	// ¹Ç÷ÀÍ·x×ø±ê
-#define PLAYER_SKELETON_HEAD_Y (PLAYER_SKELETON_HEAD_X + 0x10)				// ¹Ç÷ÀÍ·y×ø±ê
-#define PLAYER_SKELETON_HEAD_Z (PLAYER_SKELETON_HEAD_Y + 0x10)				// ¹Ç÷ÀÍ·z×ø±ê
+// äººç‰©ç»“æž„ä½“
+#define PLAYER_HP													0x100	// è¡€é‡åç§»,DWORD
+#define PLAYER_POS													0xA0	// åæ ‡åç§»ï¼Œfloat
+#define PLAYER_TEAM_FLAG											0xf4	// teamæ ‡å¿—ä½ï¼ŒDWORD
+#define PLAYER_MIRRO												0x31f4	// æ˜¯å¦å¼€é•œ, DWORD, å¤§ç‹™ä¸€å€é•œæ˜¯40ï¼ŒäºŒå€é•œæ˜¯10ï¼Œé»˜è®¤æ˜¯0æˆ–è€…90
+#define PLAYER_COMMAND												0x300C	// åŠ¨ä½œç±»åž‹(å¼€æžªï¼Œæ”»å‡»ï¼Œè·³è·ƒç­‰ï¼Œ32ä½ï¼Œæ¯ä¸€ä½ä»£è¡¨ä¸€ä¸ªç±»åž‹ï¼Œç¬¬ä¸€ä½æ˜¯æ”»å‡»)
+#define PLAYER_PITCH												0x12C	// ä¿¯ä»°è§’, float, å¾€ä¸Š-89åº¦-å¾€ä¸‹89åº¦(ä¸èƒ½ä¿®æ”¹)
+#define PLAYER_YAW													0x130	// åèˆªè§’ï¼Œfloat, è§’åº¦ï¼Œ0-360åº¦(ä¸èƒ½ä¿®æ”¹)
+#define PLAYER_SKELETON_BASE										0x26a8	// éª¨éª¼åœ°å€åç§»
+#define PLAYER_SKELETON_HEAD_X										0x18c	// éª¨éª¼å¤´xåæ ‡
+#define PLAYER_SKELETON_HEAD_Y (PLAYER_SKELETON_HEAD_X + 0x10)				// éª¨éª¼å¤´yåæ ‡
+#define PLAYER_SKELETON_HEAD_Z (PLAYER_SKELETON_HEAD_Y + 0x10)				// éª¨éª¼å¤´zåæ ‡
 
 
-#define ENGINE_VISUAL_ANGLE_BASE		0x58CFDC	// ½Ç¶ÈÆ«ÒÆbase
+#define ENGINE_VISUAL_ANGLE_BASE		0x58CFDC	// è§’åº¦åç§»base
 #define ENGINE_VISUAL_VIEW_ANGLE		0x4d90		// pitch,yaw float[2]
-#define ENGINE_CAMERA_MATRIX			0x4DCD214	// ÉãÏñ»úview-projection¾ØÕó»ùÖ·
-#define LOCAL_PLAYER					0x5284028
+#define ENGINE_CAMERA_MATRIX			0x4DCD234	// æ‘„åƒæœºview-projectionçŸ©é˜µåŸºå€
+#define LOCAL_PLAYER					0x5284084
 
 
 

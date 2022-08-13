@@ -86,6 +86,9 @@
     <ClInclude Include="render_manager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="application.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="process_mamager.cpp">
@@ -131,6 +134,9 @@
       <Filter>hook</Filter>
     </ClCompile>
     <ClCompile Include="render_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

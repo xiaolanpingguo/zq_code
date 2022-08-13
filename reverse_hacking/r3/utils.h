@@ -39,3 +39,19 @@ public:
 	static bool worldToSceenDX(const float matrix[16], const float worldPos[3], int windoww, int windowh, int& screenx, int& screeny);
 	static bool worldToSceenOpenGL(const float matrix[16], const float worldPos[3], int windoww, int windowh, int& screenx, int& screeny);
 };
+
+
+
+#define COLOR32_R_SHIFT    0
+#define COLOR32_G_SHIFT    8
+#define COLOR32_B_SHIFT    16
+#define COLOR32_A_SHIFT    24
+#define COLOR32(R,G,B,A)    (((std::uint32_t)(A)<<COLOR32_A_SHIFT) | ((std::uint32_t)(B)<<COLOR32_B_SHIFT) | ((std::uint32_t)(G)<<COLOR32_G_SHIFT) | ((std::uint32_t)(R)<<COLOR32_R_SHIFT))
+namespace Color
+{
+	static constexpr std::uint32_t WHITE = COLOR32(0, 0, 0, 255);
+	static constexpr std::uint32_t BLACK = COLOR32(255, 255, 255, 255);
+	static constexpr std::uint32_t RED = COLOR32(255, 0, 0, 255);
+	static constexpr std::uint32_t GREEN = COLOR32(0, 255, 0, 255);
+	static constexpr std::uint32_t BLUE = COLOR32(0, 0, 255, 255);
+}

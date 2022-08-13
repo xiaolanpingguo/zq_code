@@ -3,10 +3,8 @@
 #include <array>
 #include <map>
 #include "r3/utils.h"
+#include "r3/application.h"
 
-
-
-class RenderManager;
 
 struct Player
 {
@@ -22,11 +20,10 @@ struct Player
 
 struct ESPData
 {
-	static constexpr std::uint32_t s_redRectangle = RGB(255, 0, 0);
-	static constexpr std::uint32_t s_blueRectangle = RGB(0, 0, 255);
 	struct RenderData
 	{
-		RECT rect;
+		float x1, y1; // rect top-left
+		float x2, y2; // rect right-bottom
 		std::uint32_t color;
 		std::string textHP;
 	};
@@ -39,43 +36,39 @@ struct ESPData
 };
 
 
-class CSGO
+class CSGO : public Application
 {
 public:
 	CSGO();
 	~CSGO();
 
-    bool init();
-    void run();
-    void stop();
-	bool isRunning();
-
-	bool& getAimboot() { return m_aimbot; }
-	bool& getEsp() { return m_esp; }
+    bool init() override;
+    void run() override;
 
 private:
+
+	ApplicationConfig getApplicationConfig() override;
+	void update() override;
+	void shutdown() override;
 
 	bool initGameModule();
 	bool getGameProcess();
 	void adjustWindow();
 
 	// render
-	void gameDraw();
+	void drawGame();
+	void drawUI();
 	void drawESP();
 
 	// game
+	bool isGameQuit();
+	void readGameMemory(std::vector<Player*>& allPlayers);
 	bool updateGameSignature();
 	bool readGameGlobalData();
-	void updateGame();
 	void updateESP(const std::vector<Player*>& allPlayers);
 	void updateAimBot(const std::vector<Player*>& allPlayers);
 
 private:
-
-	static std::atomic<bool> m_stop;
-	HWND m_mainWnd;
-	HINSTANCE m_appInstance;
-	RenderManager* m_renderManager;
 
 	int m_gameWindowWidth;
 	int m_gameWindowHeight;
