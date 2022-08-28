@@ -1,0 +1,178 @@
+一: 游戏一些指令：
+	sv_cheats 1 开启作弊
+	mp_roundtime_defuse 60 设置一局时长 60分钟
+	bot_kill 杀死全部
+	bot_stop 1 全体定住
+	bot_add 随机增加一个bot
+	hurtme 1
+	mp_friendlyfire 1 开启友军伤害 
+	bot_kick 踢出所有BOT
+	mp_restartgame 1 一秒后刷新
+	mp_startmoney 16000 出生金钱16000
+	
+2： 人物数组基址特征码：
+
+			3127A461 | 85F6                     | test esi,esi                            |
+			3127A463 | 75 11                    | jne client.3127A476                     |
+			3127A465 | 837B 58 FF               | cmp dword ptr ds:[ebx+58],FFFFFFFF      |
+			3127A469 | C743 58 FFFFFFFF         | mov dword ptr ds:[ebx+58],FFFFFFFF      |
+			3127A470 | 0F9545 FF                | setne byte ptr ss:[ebp-1]               |
+			3127A474 | EB 35                    | jmp client.3127A4AB                     |	// 特征码开始
+			3127A476 | 8B4B 58                  | mov ecx,dword ptr ds:[ebx+58]           | 
+			3127A479 | 83F9 FF                  | cmp ecx,FFFFFFFF                        |
+			3127A47C | 74 19                    | je client.3127A497                      |
+			3127A47E | 0FB7C1                   | movzx eax,cx                            |
+			3127A481 | C1E0 04                  | shl eax,4                               |
+			3127A484 | 05 1CB9B535              | add eax,client.35B5B91C                 |  // 人物数组基址 = 35B5B91C+eax就是，到时候找到这块代码看下eax和这个常量就知道了数组基址的值了
+			3127A489 | 74 0C                    | je client.3127A497                      |
+			3127A48B | C1E9 10                  | shr ecx,10                              |
+			3127A48E | 3948 04                  | cmp dword ptr ds:[eax+4],ecx            |
+
+			特征码： EB ?? 8B4B ?? 83F9 FF 74 ?? 0FB7C1C1E0 ?? 05 ??
+			
+	玩家自己的地址特征码：	
+			31263B80 | 55                       | push ebp                                |
+			31263B81 | 8BEC                     | mov ebp,esp                             |
+			31263B83 | 8B55 08                  | mov edx,dword ptr ss:[ebp+8]            |
+			31263B86 | 85D2                     | test edx,edx                            |			// 这个函数的ecx就是人物数组的地址，[ecx]就相当于取人物数组的第一个元素，就是自己人物的地址
+			31263B88 | 75 0A                    | jne client.31263B94                     |
+			31263B8A | 8339 FF                  | cmp dword ptr ds:[ecx],FFFFFFFF         |
+			31263B8D | 0F95C0                   | setne al                                |
+			31263B90 | 5D                       | pop ebp                                 |
+			31263B91 | C2 0400                  | ret 4                                   |
+			31263B94 | 8B01                     | mov eax,dword ptr ds:[ecx]              |
+			31263B96 | 83F8 FF                  | cmp eax,FFFFFFFF                        |
+			31263B99 | 74 21                    | je client.31263BBC                      |
+			31263B9B | 0FB7C8                   | movzx ecx,ax                            |
+
+			特征码： 8339 FF 0F95C0 5D C2 0400
+			
+	矩阵特征码：第一个数据特点：-1到1之间，鸟枪开镜是-2-2之间，-5到5之间，不移动鼠标数据不会变
+		client.dll+83EE40 - 55                    - push ebp
+		client.dll+83EE41 - 8B EC                 - mov ebp,esp
+		client.dll+83EE43 - 8B 55 08              - mov edx,[ebp+08]
+		client.dll+83EE46 - 8B 02                 - mov eax,[edx]
+		client.dll+83EE48 - 89 01                 - mov [ecx],eax
+		client.dll+83EE4A - 8B 42 04              - mov eax,[edx+04]
+		client.dll+83EE4D - 89 41 04              - mov [ecx+04],eax
+		client.dll+83EE50 - 8B 42 08              - mov eax,[edx+08]
+		client.dll+83EE53 - 89 41 08              - mov [ecx+08],eax
+		client.dll+83EE56 - 8B 42 0C              - mov eax,[edx+0C]
+		client.dll+83EE59 - 89 41 0C              - mov [ecx+0C],eax
+		client.dll+83EE5C - 8B 42 10              - mov eax,[edx+10]
+		client.dll+83EE5F - 89 41 10              - mov [ecx+10],eax
+		client.dll+83EE62 - 8B 42 14              - mov eax,[edx+14]
+		client.dll+83EE65 - 89 41 14              - mov [ecx+14],eax
+		client.dll+83EE68 - 8B 42 18              - mov eax,[edx+18]
+		client.dll+83EE6B - 89 41 18              - mov [ecx+18],eax
+		client.dll+83EE6E - 8B 42 1C              - mov eax,[edx+1C]
+		client.dll+83EE71 - 89 41 1C              - mov [ecx+1C],eax
+		client.dll+83EE74 - 8B 42 20              - mov eax,[edx+20]
+		client.dll+83EE77 - 89 41 20              - mov [ecx+20],eax
+		client.dll+83EE7A - 8B 42 24              - mov eax,[edx+24]
+		client.dll+83EE7D - 89 41 24              - mov [ecx+24],eax
+		client.dll+83EE80 - 8B 42 28              - mov eax,[edx+28]
+		client.dll+83EE83 - 89 41 28              - mov [ecx+28],eax
+		client.dll+83EE86 - 8B 42 2C              - mov eax,[edx+2C]
+		client.dll+83EE89 - 89 41 2C              - mov [ecx+2C],eax
+		client.dll+83EE8C - 8B 42 30              - mov eax,[edx+30]
+		client.dll+83EE8F - 89 41 30              - mov [ecx+30],eax
+		client.dll+83EE92 - 8B 42 34              - mov eax,[edx+34]
+		client.dll+83EE95 - 89 41 34              - mov [ecx+34],eax
+		client.dll+83EE98 - 8B 42 38              - mov eax,[edx+38]
+		client.dll+83EE9B - 89 41 38              - mov [ecx+38],eax
+		client.dll+83EE9E - 8B 42 3C              - mov eax,[edx+3C]
+		client.dll+83EEA1 - 89 41 3C              - mov [ecx+3C],eax
+		client.dll+83EEA4 - 8B C1                 - mov eax,ecx
+		client.dll+83EEA6 - 5D                    - pop ebp
+		client.dll+83EEA7 - C2 0400               - ret 0004 { 4 }
+		
+	骨骼地址特征码：
+		1： 
+			83 3C B0  FF 75 ?? 8B 87 ?? ?? ?? ?? 8B CF 8B 17
+		
+			2A04C0C8 - 83 3C B0  FF - cmp dword ptr [eax+esi*4],-01
+			2A04C0CC - 75 15 - jne client.dll+1CC0E3
+			2A04C0CE - 8B 87 A8260000  - mov eax,[edi+000026A8] <<
+			2A04C0D4 - 8B CF  - mov ecx,edi
+			2A04C0D6 - 8B 17  - mov edx,[edi]	
+			
+			CE有个奇怪的地方：显示反汇编的代码是上面的，结果在下面的内存里看到地址是这个：50 61 6d 8a(对应 8B 87 A8260000)
+			然后我用xdbg去搜，搜这个83 3C B0  FF 75 ?? 8B 87 ?? ?? ?? ?? 8B CF 8B 17  就能搜到
+		2：
+			找骨骼的过程，思路是利用背向人物，骨骼矩阵不变的特点去找，
+			然后找到的目标结果最好是能找到人物地址的偏移。
+			然后最后应该还剩下8000多个，然后在这8000多个中，根据这个人物的位置数据，在前后相差40的
+			数据中再筛选一次。此时就按照数据一片一片的找，找到一片的地址，然后找出谁访问的，之后筛选访问client.dll的，
+			用这个地址再去筛选，反反复复进行，直到能找到一个指针地址是从某个人物的地址的访问而来的
+
+		
+
+3：人物数据偏移：
+	人物数组基址：client.dll+4DDB92C
+	血量：四字节，ecx+0x100
+	坐标: x, y ,Z : ecx+0xA0
+	队伍标志位：ecx+0xf4或者ecx+0xf8  2是匪，3是警
+	骨骼地址：ecx+0x26a8， 骨骼头地址：ecx+0x26a8+0x18c
+	
+	本地玩家的偏移：client.dll+5284028，以这个地址存的地址和队伍数组里面存的地址
+	做比较，相同则是自己
+	
+	
+4: pitch和yaw的内存地址：
+	pitch: [[engine.dll+58CFDC] + 0x4d90]
+	yaw: [[engine.dll+58CFDC] + 0x4d94]
+	
+	这个是找第一层偏移的特征码所在的函数(找[15F8CFDC])：
+	15AB3806 | F3:0F1005 00AF1A16       | movss xmm0,dword ptr ds:[161AAF00]      |
+	15AB380E | 8B0D D49EF915            | mov ecx,dword ptr ds:[15F99ED4]         |
+	15AB3814 | F3:0F1145 F8             | movss dword ptr ss:[ebp-8],xmm0         |
+	15AB3819 | 81F9 B89EF915            | cmp ecx,engine.15F99EB8                 |
+	15AB381F | 75 16                    | jne engine.15AB3837                     |
+	15AB3821 | F3:0F1005 E49EF915       | movss xmm0,dword ptr ds:[15F99EE4]      | 15F99EE4:&"殭y?"
+	15AB3829 | F3:0F1145 FC             | movss dword ptr ss:[ebp-4],xmm0         |
+	15AB382E | 8175 FC B89EF915         | xor dword ptr ss:[ebp-4],engine.15F99EB |
+	15AB3835 | EB 0A                    | jmp engine.15AB3841                     |
+	15AB3837 | 8B01                     | mov eax,dword ptr ds:[ecx]              |
+	15AB3839 | 8B40 30                  | mov eax,dword ptr ds:[eax+30]           |
+	15AB383C | FFD0                     | call eax                                |
+	15AB383E | D95D FC                  | fstp dword ptr ss:[ebp-4],st(0)         |
+	15AB3841 | 8B0D DCCFF815            | mov ecx,dword ptr ds:[15F8CFDC]         |	// 这个地址[15F8CFDC]就是engine.dll+58CFDC， 存的是访问两个角的地址
+	15AB3847 | 8D49 08                  | lea ecx,dword ptr ds:[ecx+8]            |
+	15AB384A | E8 51850300              | call engine.15AEBDA0                    |
+
+	特征码：EB 0A8B018B40 30FFD0D95D FC8B0D????????8D49 08 E8
+	
+	
+	这个是找第二层偏移的特征码所在的函数(找[esi+4D90])：
+	15C1AD76 | A1 D8CFF815              | mov eax,dword ptr ds:[15F8CFD8]         |
+	15C1AD7B | F3:0F1145 F0             | movss dword ptr ss:[ebp-10],xmm0        |
+	15C1AD80 | FF50 14                  | call dword ptr ds:[eax+14]              |
+	15C1AD83 | 8B17                     | mov edx,dword ptr ds:[edi]              | edx:"syncpoints_1"
+	15C1AD85 | 8B3485 DCCFF815          | mov esi,dword ptr ds:[eax*4+15F8CFDC]   |
+	15C1AD8C | 8D8E 904D0000            | lea ecx,dword ptr ds:[esi+4D90]         |
+	15C1AD92 | E8 79CE0800              | call engine.15CA7C10                    |
+	15C1AD97 | F3:0F7E86 904D0000       | movq xmm0,qword ptr ds:[esi+4D90]       |
+	15C1AD9F | B9 D8CFF815              | mov ecx,engine.15F8CFD8                 |
+	15C1ADA4 | 8B86 984D0000            | mov eax,dword ptr ds:[esi+4D98]         |
+	15C1ADAA | 66:0FD645 E4             | movq qword ptr ss:[ebp-1C],xmm0         |
+	15C1ADAF | F3:0F1045 E8             | movss xmm0,dword ptr ss:[ebp-18]        |
+	15C1ADB4 | F3:0F5845 F0             | addss xmm0,dword ptr ss:[ebp-10]        |
+	15C1ADB9 | 8945 EC                  | mov dword ptr ss:[ebp-14],eax           |
+	15C1ADBC | A1 D8CFF815              | mov eax,dword ptr ds:[15F8CFD8]         |
+	15C1ADC1 | F3:0F1145 F0             | movss dword ptr ss:[ebp-10],xmm0        |
+	
+	特征码：F3:0F1145 F0 FF50 148B178B3485????????8D8E????????E8????????F3:0F7E86
+
+	
+5： 画矩形的时候需注意的点：
+	1： 获取的人物的地址是人物脚下正中心的地址，因此需要在找骨骼的数据过程中，观察，x,y ,z最大和最小的值
+		然后用这个差值/2就是我们画的矩形的4个点的位置，这里我大概算出来，x的差值在26， y的差值在15， z的差值是65
+	X地址：631 657
+	Y地址：-747 -762
+	Z坐标：119 184
+	
+	
+	
+	
+	

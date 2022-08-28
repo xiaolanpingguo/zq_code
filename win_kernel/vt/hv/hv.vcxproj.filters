@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="asm">
+      <UniqueIdentifier>{c6813829-0126-4465-9056-478bf52a3b9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ia32">
+      <UniqueIdentifier>{3c6a195f-e0db-43bc-a398-64ba81d20430}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="asm\vm_context.asm">
+      <Filter>asm</Filter>
+    </MASM>
+    <MASM Include="asm\vm_intrin.asm">
+      <Filter>asm</Filter>
+    </MASM>
+    <MASM Include="asm\lde64.asm">
+      <Filter>asm</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="asm\vm_context.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="asm\vm_intrin.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\cpuid.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\cr.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\dr.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\exception.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\msr.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\mtrr.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\rflags.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\segment.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\vmcs_encodings.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="allocators.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hypervisor_gateway.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hypervisor_routines.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interrupt.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="invalidators.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntapi.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="poolmanager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmcall_handler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmcall_reason.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmexit_handler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmm.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\vmcs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32\ept.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ept.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hypervisor_gateway.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hypervisor_routines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="invalidators.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="poolmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spinlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vmcall_handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vmcs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vmexit_handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vmm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
