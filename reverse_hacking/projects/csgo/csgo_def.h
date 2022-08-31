@@ -6,7 +6,7 @@
 
 // 人物数组基址
 // 特征码：EB ?? 8B4B ?? 83F9 FF 74 ?? 0FB7C1C1E0 ?? 05 ??
-#define TEAMS_BASE				0x4DDB91C
+#define TEAMS_BASE				0x4DDD91C
 
 // 人物数组，每个人物元素的间隔是0x10个字节
 #define PLAYERS_ARRAY_OFFSET	0x10
@@ -27,8 +27,8 @@
 
 #define ENGINE_VISUAL_ANGLE_BASE		0x58CFDC	// 角度偏移base
 #define ENGINE_VISUAL_VIEW_ANGLE		0x4d90		// pitch,yaw float[2]
-#define ENGINE_CAMERA_MATRIX			0x4DCD234	// 摄像机view-projection矩阵基址
-#define LOCAL_PLAYER					0x5284084
+#define ENGINE_CAMERA_MATRIX			0x4DCF234	// 摄像机view-projection矩阵基址
+#define LOCAL_PLAYER					0x5286084
 
 
 

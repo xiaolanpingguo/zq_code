@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="29">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>19</ID>
+      <Description>"房间人物基址"</Description>
+      <LastState Value="72E7E7D0" RealAddress="37B0D91C"/>
+      <ShowAsHex>1</ShowAsHex>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>23</ID>
+      <Description>"血量"</Description>
+      <LastState Value="100" RealAddress="72E7E8D0"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0x100</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>26</ID>
+      <Description>"矩阵"</Description>
+      <LastState Value="0.1137012765" RealAddress="37AFF234"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DCF234</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>27</ID>
+      <Description>"x坐标"</Description>
+      <LastState Value="420.6384277" RealAddress="72E7E870"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0xa0</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>28</ID>
+      <Description>"Y坐标"</Description>
+      <LastState Value="2253.02832" RealAddress="72E7E874"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0xa4</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>29</ID>
+      <Description>"z坐标"</Description>
+      <LastState Value="-128.6859741" RealAddress="72E7E878"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0xa8</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>736</ID>
+      <Description>"头骨x地址"</Description>
+      <LastState Value="427.856842" RealAddress="7032AB8C"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>18c</Offset>
+        <Offset>0x26a8</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>737</ID>
+      <Description>"头骨y地址"</Description>
+      <LastState Value="2253.172119" RealAddress="7032AB9C"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>19c</Offset>
+        <Offset>0x26a8</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>738</ID>
+      <Description>"头骨z地址"</Description>
+      <LastState Value="-64.39987183" RealAddress="7032ABAC"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>1ac</Offset>
+        <Offset>0x26a8</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>739</ID>
+      <Description>"人物 pitch"</Description>
+      <LastState Value="-6.890277863" RealAddress="72E7E8FC"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0x12C</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>740</ID>
+      <Description>"人物 yaw"</Description>
+      <LastState Value="8.719761848" RealAddress="72E7E900"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0x130</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1249</ID>
+      <Description>"engine pitch"</Description>
+      <LastState Value="-6.890277863" RealAddress="FC3D4DA0"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>engine.dll+58CFDC</Address>
+      <Offsets>
+        <Offset>0x4d90</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1250</ID>
+      <Description>"engine yaw"</Description>
+      <LastState Value="8.719761848" RealAddress="FC3D4DA4"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>engine.dll+58CFDC</Address>
+      <Offsets>
+        <Offset>0x4d94</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1254</ID>
+      <Description>"local Player"</Description>
+      <LastState Value="72E7E7D0" RealAddress="37FB6084"/>
+      <ShowAsHex>1</ShowAsHex>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>client.dll+5286084</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1255</ID>
+      <Description>"开镜标志"</Description>
+      <LastState Value="90" RealAddress="72E819C4"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0x31f4</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1256</ID>
+      <Description>"队伍标志(3是ct)"</Description>
+      <LastState Value="3" RealAddress="72E7E8C4"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0xf4</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1257</ID>
+      <Description>"动作类型(开枪，攻击，跳跃等，32位，每一位代表一个类型，第一位是攻击)"</Description>
+      <LastState Value="0" RealAddress="72E817DC"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>client.dll+4DDD91C</Address>
+      <Offsets>
+        <Offset>0x300C</Offset>
+      </Offsets>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>

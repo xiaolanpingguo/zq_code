@@ -93,7 +93,7 @@
 		
 			2A04C0C8 - 83 3C B0  FF - cmp dword ptr [eax+esi*4],-01
 			2A04C0CC - 75 15 - jne client.dll+1CC0E3
-			2A04C0CE - 8B 87 A8260000  - mov eax,[edi+000026A8] <<
+			2A04C0CE - 8B 87 A8260000  - mov eax,[edi+000026A8] <<  //26A8就是第一层偏移
 			2A04C0D4 - 8B CF  - mov ecx,edi
 			2A04C0D6 - 8B 17  - mov edx,[edi]	
 			
