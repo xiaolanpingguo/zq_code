@@ -97,6 +97,7 @@ private:
 	// esp
 	ESPData m_espData;
 	bool m_esp;
+	bool m_espTeamMember;
 
 	// aimbot
 	bool m_aimbot;

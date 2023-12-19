@@ -23,6 +23,7 @@ CSGO::CSGO()
 	, m_gamePid(0)
 	, m_esp(true)
 	, m_aimbot(false)
+	, m_espTeamMember(false)
 	, m_localPlayer(nullptr)
 {
 }
@@ -291,6 +292,7 @@ void CSGO::drawUI()
 
 	ImGui::Checkbox("--透视--", &m_esp);
 	ImGui::Checkbox("--自瞄--", &m_aimbot);
+	ImGui::Checkbox("--队友方框--", &m_espTeamMember);
 	if (ImGui::Button("--退出--"))
 	{
 		stop();
@@ -386,7 +388,7 @@ void CSGO::updateESP(const std::vector<Player*>& allPlayers)
 
 		if (&player == m_localPlayer
 			|| player.hp <= 0
-			|| m_localPlayer->team == player.team
+			|| ((m_localPlayer->team == player.team) && !m_espTeamMember)
 			)
 		{
 			continue;
