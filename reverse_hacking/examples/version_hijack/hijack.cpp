@@ -98,8 +98,7 @@ bool InitDll()
 	{
 		for (int i = 1; i <= 17; i++)
 		{
-			std::string s = std::to_string(i);
-			g_call[i] = (UINT_PTR)GetProcAddress(handle, s.c_str());
+			g_call[i] = (UINT_PTR)GetProcAddress(handle, MAKEINTRESOURCEA(i));
 		}
 
 		return true;
