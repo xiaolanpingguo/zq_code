@@ -40,6 +40,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "version_hijack", "examples\version_hijack\version_hijack.vcxproj", "{78164365-AAB7-419F-8A0B-64DB5F5ACBF5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dllloader", "examples\dllloader\dllloader.vcxproj", "{DD2AC51B-40E3-4DF9-B8D4-AF9D2FBB2AF2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4F09F71B-E1A6-4976-8B29-5B493077B9A0} = {4F09F71B-E1A6-4976-8B29-5B493077B9A0}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

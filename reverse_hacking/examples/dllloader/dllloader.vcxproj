@@ -115,13 +115,13 @@
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>r3lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)\r3\hook\Detours;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -138,7 +138,7 @@
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
