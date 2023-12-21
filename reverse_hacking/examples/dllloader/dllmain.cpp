@@ -13,7 +13,7 @@
 static bool hideThread(HANDLE hThread)
 {
     using FnSetInformationThread = NTSTATUS(NTAPI*)(HANDLE, THREADINFOCLASS, PVOID, ULONG);
-    const auto NtSetInformationThread{ reinterpret_cast<FnSetInformationThread>(::GetProcAddress(::GetModuleHandle(L"ntdll.dll"), "NtSetInformationThread")) };
+    const auto NtSetInformationThread{ reinterpret_cast<FnSetInformationThread>(::GetProcAddress(::GetModuleHandle(TEXT("ntdll.dll")), TEXT("NtSetInformationThread"))) };
     if (NtSetInformationThread == nullptr)
     {
         return false;
@@ -159,18 +159,18 @@ void Application::appThread()
 bool Application::init()
 {
     HINSTANCE ins = GetModuleHandle(nullptr);
-    WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_CLASSDC, _wndProc, 0L, 0L, ins, NULL, NULL, NULL, NULL, "main", NULL };
-    ::RegisterClassExA(&wc);
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, _wndProc, 0L, 0L, ins, NULL, NULL, NULL, NULL, TEXT("main"), NULL };
+    ::RegisterClassEx(&wc);
 
     // main window
-    m_mainWnd = ::CreateWindowA(wc.lpszClassName, "main", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, m_width, m_height, NULL, NULL, ins, this);
+    m_mainWnd = ::CreateWindow(wc.lpszClassName, TEXT("main"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, m_width, m_height, NULL, NULL, ins, this);
     if (m_mainWnd == nullptr)
     {
         return false;
     }
 
     // load button
-    m_loadButtonWnd = ::CreateWindowA("button", "load", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 0, 0, 100, 30, m_mainWnd, (HMENU)ID_LOAD_BUTTON, ins, nullptr);
+    m_loadButtonWnd = ::CreateWindow(TEXT("button"), TEXT("load"), WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 0, 0, 100, 30, m_mainWnd, (HMENU)ID_LOAD_BUTTON, ins, nullptr);
     if (m_loadButtonWnd == nullptr)
     {
         return false;
@@ -181,7 +181,7 @@ bool Application::init()
     m_loadButtonRect.bottom = 30;
 
     // unload button
-    m_unloadButtonWnd = ::CreateWindowA("button", "unload", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 0, 40, 100, 30, m_mainWnd, (HMENU)ID_UNLOAD_BUTTON, ins, nullptr);
+    m_unloadButtonWnd = ::CreateWindow(TEXT("button"), TEXT("unload"), WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 0, 40, 100, 30, m_mainWnd, (HMENU)ID_UNLOAD_BUTTON, ins, nullptr);
     if (m_unloadButtonWnd == nullptr)
     {
         return false;
@@ -217,25 +217,25 @@ void Application::run()
 
 void Application::onLoadButtonClick()
 {
-    OPENFILENAME ofn = { 0 };
-    TCHAR strFilename[MAX_PATH] = { 0 };
-    ofn.lStructSize = sizeof(OPENFILENAME);
-    ofn.hwndOwner = NULL;
-    ofn.lpstrFilter = TEXT("*.*");
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFile = strFilename;
-    ofn.nMaxFile = sizeof(strFilename);
-    ofn.lpstrInitialDir = TEXT(".");
-    ofn.lpstrTitle = TEXT("Open");
-    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
-    if (GetOpenFileName(&ofn))
-    {
-        HMODULE handle = LoadLibrary(strFilename);
-        if (handle)
-        {
-            MessageBox(NULL, TEXT("load success"), TEXT("notice"), 0);
-        }
-    }
+	OPENFILENAME ofn = { 0 };
+	TCHAR strFilename[MAX_PATH] = { 0 };
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFilter = TEXT("*");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = strFilename;
+	ofn.nMaxFile = sizeof(strFilename);
+	ofn.lpstrInitialDir = TEXT(".");
+	ofn.lpstrTitle = TEXT("Open");
+	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
+	if (GetOpenFileName(&ofn))
+	{
+		HMODULE handle = LoadLibrary(strFilename);
+		if (handle)
+		{
+			MessageBox(NULL, TEXT("load success"), TEXT("notice"), 0);
+		}
+	}
 }
 
 void Application::onUnloadButtonClick()
@@ -258,7 +258,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
     Application::start();
 
-    ::CloseHandle(hModule);
     return TRUE;
 }
 
